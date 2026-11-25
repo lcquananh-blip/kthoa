@@ -1,0 +1,3082 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quizizz Polymer — Ôn Tập Hóa Học Đầy Đủ 36 Câu & Tổng Hợp Phản Ứng</title>
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS & BASE STYLES (QUIZIZZ DARK PURPLE THEME)
+       ========================================================================== */
+    :root {
+      --bg-deep: #1E0B2B;
+      --bg-mid: #2D1140;
+      --bg-card: #461A42;
+      --bg-card-hover: #562252;
+      --border-subtle: rgba(255, 255, 255, 0.14);
+      --text-main: #FFFFFF;
+      --text-muted: #D8C4E8;
+      --accent-purple: #A855F7;
+      --accent-pink: #EC4899;
+      --accent-gold: #FBBF24;
+
+      /* Quizizz 4 Signature Option Colors */
+      --opt-a: #2D70AE;
+      --opt-a-dark: #1F5180;
+      --opt-b: #2D9DA6;
+      --opt-b-dark: #1E7178;
+      --opt-c: #EFA929;
+      --opt-c-dark: #BA7F15;
+      --opt-d: #D5546D;
+      --opt-d-dark: #A1384D;
+
+      /* Feedback Colors */
+      --correct: #22C55E;
+      --correct-dark: #15803D;
+      --wrong: #EF4444;
+      --wrong-dark: #B91C1C;
+
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.35);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: var(--font-sans);
+      background: radial-gradient(circle at top right, #461A42 0%, #2D1140 45%, #1E0B2B 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      line-height: 1.55;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button, input {
+      font-family: inherit;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ==========================================================================
+       2. LAYOUT & HEADER
+       ========================================================================== */
+    .app-wrapper {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 14px 16px 48px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      background: rgba(45, 17, 64, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #A855F7, #EC4899);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);
+      flex-shrink: 0;
+    }
+
+    .brand-text h1 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 9px 14px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .icon-btn:active {
+      transform: translateY(1px);
+    }
+
+    .icon-btn.active {
+      background: rgba(168, 85, 247, 0.35);
+      border-color: var(--accent-purple);
+    }
+
+    /* ==========================================================================
+       3. HOME SCREEN
+       ========================================================================== */
+    .view {
+      animation: fadeSlideIn 0.3s ease;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, rgba(70, 26, 66, 0.95), rgba(45, 17, 64, 0.95));
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(251, 191, 36, 0.16);
+      color: var(--accent-gold);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hero-card h2 {
+      font-size: clamp(1.5rem, 3.8vw, 2.25rem);
+      font-weight: 900;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #FFFFFF, #F5D0FE, #FDE68A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-card p {
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 20px;
+      font-size: 0.98rem;
+    }
+
+    .settings-bar {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .toggle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(30, 11, 43, 0.65);
+      border: 1px solid var(--border-subtle);
+      padding: 10px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .toggle-pill:hover {
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .switch {
+      width: 42px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      position: relative;
+      transition: background 0.2s ease;
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s ease;
+    }
+
+    .toggle-pill input {
+      display: none;
+    }
+
+    .toggle-pill input:checked + .switch {
+      background: var(--correct);
+    }
+
+    .toggle-pill input:checked + .switch::after {
+      transform: translateX(18px);
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 16px;
+    }
+
+    .mode-card {
+      background: rgba(70, 26, 66, 0.82);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: left;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mode-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .mode-card.featured {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #5B21B6, #86198F);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .mode-card.study-card {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #1E3A5F, #2D1140);
+      border-color: rgba(45, 157, 166, 0.45);
+    }
+
+    .mode-tag {
+      display: inline-block;
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      margin-bottom: 10px;
+      width: fit-content;
+    }
+
+    .mode-card h3 {
+      font-size: 1.18rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .mode-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .mode-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    /* ==========================================================================
+       4. QUIZ SCREEN (HUD, QUESTION CARD, OPTIONS)
+       ========================================================================== */
+    .quiz-hud {
+      background: rgba(45, 17, 64, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .hud-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .hud-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(30, 11, 43, 0.8);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .stat-pill.score { color: var(--accent-gold); }
+    .stat-pill.streak { color: #FB923C; }
+    .stat-pill.streak.hot {
+      background: rgba(251, 146, 60, 0.2);
+      border-color: #FB923C;
+      animation: pulseStreak 0.6s ease;
+    }
+
+    @keyframes pulseStreak {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2D9DA6, #A855F7, #EFA929);
+      border-radius: 999px;
+      transition: width 0.35s ease;
+      width: 0%;
+    }
+
+    /* Question Navigator Panel */
+    .nav-panel {
+      background: rgba(30, 11, 43, 0.94);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+      animation: fadeSlideIn 0.2s ease;
+    }
+
+    .nav-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav-legend {
+      display: flex;
+      gap: 12px;
+      font-size: 0.78rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+      gap: 8px;
+    }
+
+    .nav-item {
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .nav-item.current {
+      border: 2px solid var(--accent-gold);
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.25);
+    }
+
+    .nav-item.is-correct {
+      background: var(--correct-dark);
+      border-color: var(--correct);
+    }
+
+    .nav-item.is-wrong {
+      background: var(--wrong-dark);
+      border-color: var(--wrong);
+    }
+
+    .nav-item.is-partial {
+      background: #B45309;
+      border-color: #F59E0B;
+    }
+
+    /* Question Card */
+    .question-card {
+      background: rgba(70, 26, 66, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 18px;
+    }
+
+    .q-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .q-type-badge {
+      background: rgba(168, 85, 247, 0.25);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      color: #E9D5FF;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .q-number-badge {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    .q-text {
+      font-size: 1.08rem;
+      font-weight: 600;
+      line-height: 1.65;
+      white-space: pre-line;
+      margin-bottom: 16px;
+    }
+
+    .chem-box {
+      background: rgba(30, 11, 43, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin: 12px 0 16px;
+      font-family: 'Cambria Math', 'Times New Roman', var(--font-sans);
+      font-size: 1.04rem;
+      font-weight: 700;
+      color: #FDE68A;
+      overflow-x: auto;
+      text-align: center;
+    }
+
+    .svg-container {
+      background: #FFFFFF;
+      color: #1E0B2B;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin: 14px 0 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: auto;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    }
+
+    .svg-container svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* ==========================================================================
+       5. PART I: 4-COLOR QUIZIZZ OPTIONS
+       ========================================================================== */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 680px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .option-tile {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 18px;
+      border-radius: var(--radius-md);
+      border: none;
+      color: #FFFFFF;
+      text-align: left;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.2s ease, opacity 0.25s ease, box-shadow 0.2s ease;
+      min-height: 78px;
+      line-height: 1.5;
+    }
+
+    .option-tile[data-opt="A"] { background: var(--opt-a); box-shadow: 0 6px 0 var(--opt-a-dark); }
+    .option-tile[data-opt="B"] { background: var(--opt-b); box-shadow: 0 6px 0 var(--opt-b-dark); }
+    .option-tile[data-opt="C"] { background: var(--opt-c); box-shadow: 0 6px 0 var(--opt-c-dark); color: #1E0B2B; }
+    .option-tile[data-opt="D"] { background: var(--opt-d); box-shadow: 0 6px 0 var(--opt-d-dark); }
+
+    .option-tile:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    .option-tile:active:not(:disabled) {
+      transform: translateY(3px);
+    }
+
+    .option-tile:disabled {
+      cursor: default;
+    }
+
+    .option-letter {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.22);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      flex-shrink: 0;
+      font-size: 0.95rem;
+    }
+
+    .option-tile[data-opt="C"] .option-letter {
+      background: rgba(30, 11, 43, 0.2);
+      color: #1E0B2B;
+    }
+
+    .option-tile.dimmed {
+      opacity: 0.35;
+      filter: grayscale(0.35);
+    }
+
+    .option-tile.correct-ans {
+      background: var(--correct) !important;
+      box-shadow: 0 6px 0 var(--correct-dark) !important;
+      color: #FFFFFF !important;
+      opacity: 1 !important;
+      filter: none !important;
+      outline: 3px solid #FFFFFF;
+    }
+
+    .option-tile.wrong-ans {
+      background: var(--wrong) !important;
+      box-shadow: 0 6px 0 var(--wrong-dark) !important;
+      color: #FFFFFF !important;
+      opacity: 1 !important;
+      filter: none !important;
+      animation: shakeWrong 0.35s ease;
+    }
+
+    @keyframes shakeWrong {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    /* ==========================================================================
+       6. PART II: TRUE / FALSE STATEMENTS
+       ========================================================================== */
+    .tf-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tf-item {
+      background: rgba(30, 11, 43, 0.68);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tf-item.tf-correct {
+      border-color: var(--correct);
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .tf-item.tf-wrong {
+      border-color: var(--wrong);
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .tf-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .tf-text {
+      flex: 1;
+      min-width: 220px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      line-height: 1.55;
+    }
+
+    .tf-btns {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .tf-btn {
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tf-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .tf-btn.selected-true {
+      background: var(--opt-b);
+      border-color: #fff;
+      box-shadow: 0 3px 0 var(--opt-b-dark);
+    }
+
+    .tf-btn.selected-false {
+      background: var(--opt-d);
+      border-color: #fff;
+      box-shadow: 0 3px 0 var(--opt-d-dark);
+    }
+
+    .tf-btn.graded-correct {
+      background: var(--correct) !important;
+      border-color: #fff !important;
+    }
+
+    .tf-btn.graded-wrong {
+      background: var(--wrong) !important;
+      border-color: #fff !important;
+    }
+
+    .tf-feedback {
+      font-size: 0.88rem;
+      color: #E9D5FF;
+      background: rgba(0, 0, 0, 0.22);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    /* ==========================================================================
+       7. PART III: SHORT ANSWER INPUT
+       ========================================================================== */
+    .short-answer-box {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      background: rgba(30, 11, 43, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px;
+    }
+
+    .short-input {
+      flex: 1;
+      min-width: 180px;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+      font-size: 1.15rem;
+      font-weight: 800;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .short-input:focus {
+      border-color: var(--accent-gold);
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .short-input.correct-input {
+      border-color: var(--correct);
+      background: rgba(34, 197, 94, 0.18);
+    }
+
+    .short-input.wrong-input {
+      border-color: var(--wrong);
+      background: rgba(239, 68, 68, 0.18);
+    }
+
+    /* ==========================================================================
+       8. EXPLANATION BOX & ACTION BUTTONS
+       ========================================================================== */
+    .explanation-box {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      background: rgba(30, 11, 43, 0.85);
+      border-left: 5px solid var(--accent-gold);
+      animation: fadeSlideIn 0.25s ease;
+    }
+
+    .explanation-box.is-correct { border-left-color: var(--correct); }
+    .explanation-box.is-wrong { border-left-color: var(--wrong); }
+
+    .exp-title {
+      font-weight: 800;
+      font-size: 0.98rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .exp-body {
+      font-size: 0.94rem;
+      color: #F3E8FF;
+      white-space: pre-line;
+      line-height: 1.6;
+    }
+
+    .quiz-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #A855F7, #EC4899);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 13px 24px;
+      font-size: 0.98rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #7E22CE;
+      transition: transform 0.15s ease, filter 0.2s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(2px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 20px;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ==========================================================================
+       9. SUMMARY SCREEN
+       ========================================================================== */
+    .summary-card {
+      background: rgba(70, 26, 66, 0.92);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+    }
+
+    .badge-showcase {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .badge-emoji {
+      font-size: 3.6rem;
+      margin-bottom: 6px;
+    }
+
+    .badge-title {
+      background: rgba(251, 191, 36, 0.2);
+      color: var(--accent-gold);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      padding: 5px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .sum-box {
+      background: rgba(30, 11, 43, 0.72);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .sum-val {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+    }
+
+    .sum-label {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .summary-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    /* ==========================================================================
+       10. STUDY GUIDE (PHẦN 2: TỔNG HỢP POLYMER)
+       ========================================================================== */
+    .study-header-card {
+      background: rgba(70, 26, 66, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .study-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: rgba(30, 11, 43, 0.8);
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-gold);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .filter-tab.active {
+      background: var(--accent-purple);
+      border-color: #fff;
+    }
+
+    .study-section-banner {
+      background: linear-gradient(90deg, rgba(45, 112, 174, 0.45), rgba(70, 26, 66, 0.8));
+      border-left: 5px solid var(--opt-b);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      margin: 22px 0 14px;
+    }
+
+    .study-section-banner.condensation {
+      background: linear-gradient(90deg, rgba(213, 84, 109, 0.42), rgba(70, 26, 66, 0.8));
+      border-left-color: var(--opt-c);
+    }
+
+    .study-section-banner h3 {
+      font-size: 1.12rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .study-section-banner p {
+      font-size: 0.92rem;
+      color: #F3E8FF;
+    }
+
+    .polymer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 14px;
+    }
+
+    .polymer-card {
+      background: rgba(45, 17, 64, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .polymer-title {
+      font-weight: 800;
+      font-size: 1rem;
+      color: #FFFFFF;
+    }
+
+    .polymer-eq {
+      background: rgba(30, 11, 43, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.88rem;
+      color: #FDE68A;
+      word-break: break-word;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       11. CUSTOM MODAL (NO ALERT / CONFIRM)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 5, 24, 0.78);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+
+    .modal-box {
+      background: #2D1140;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+
+    .modal-box h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .modal-box p {
+      color: var(--text-muted);
+      font-size: 0.94rem;
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- TOP HEADER -->
+    <header class="top-bar">
+      <div class="brand" id="brandHomeBtn" title="Về trang chủ">
+        <div class="brand-logo">Q</div>
+        <div class="brand-text">
+          <h1>Quizizz Hóa Học Polymer</h1>
+          <span>36 câu hỏi đầy đủ &amp; Tổng hợp phản ứng điều chế</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="soundToggleBtn" type="button" aria-label="Bật hoặc tắt âm thanh">
+          <span id="soundIcon">🔊</span>
+          <span id="soundLabel">Âm thanh: Bật</span>
+        </button>
+        <button class="icon-btn hidden" id="navToggleBtn" type="button">
+          📋 Danh sách câu
+        </button>
+        <button class="icon-btn hidden" id="homeReturnBtn" type="button">
+          🏠 Trang chủ
+        </button>
+      </div>
+    </header>
+
+    <!-- VIEW 1: HOME SCREEN -->
+    <main id="homeView" class="view">
+      <section class="hero-card">
+        <div class="hero-badge">🧪 Ôn Tập Hóa Học Polymer — Nguyên Văn 100% Tài Liệu</div>
+        <h2>Luyện Tập Trắc Nghiệm Phong Cách Quizizz</h2>
+        <p>
+          Bao gồm đầy đủ 36 câu hỏi (Phần I: Trắc nghiệm nhiều lựa chọn, Phần II: Đúng / Sai, Phần III: Trả lời ngắn kèm hướng dẫn giải nguyên văn) và Phần 2: Tổng hợp các polymer và phản ứng điều chế.
+        </p>
+        <div class="settings-bar">
+          <label class="toggle-pill">
+            <span>🔀 Xáo trộn thứ tự câu hỏi</span>
+            <input type="checkbox" id="shuffleToggle" />
+            <span class="switch"></span>
+          </label>
+          <label class="toggle-pill">
+            <span>🔊 Âm thanh hiệu ứng</span>
+            <input type="checkbox" id="homeSoundToggle" checked />
+            <span class="switch"></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="mode-grid">
+        <button class="mode-card featured" data-mode="all" type="button">
+          <div>
+            <span class="mode-tag">Chế độ đầy đủ</span>
+            <h3>1. Làm toàn bộ đề (36 câu: Câu 1 – Câu 36)</h3>
+            <p>Trải nghiệm trọn vẹn cả 3 phần: Trắc nghiệm nhiều lựa chọn, Đúng/Sai và Trả lời ngắn với tính điểm, chuỗi Streak và bảng tổng kết chi tiết.</p>
+          </div>
+          <div class="mode-footer">
+            <span>36 câu hỏi</span>
+            <span>Bắt đầu ngay →</span>
+          </div>
+        </button>
+
+        <button class="mode-card" data-mode="part1" type="button">
+          <div>
+            <span class="mode-tag" style="background: rgba(45,112,174,0.4);">Phần I</span>
+            <h3>2. Trắc nghiệm nhiều lựa chọn</h3>
+            <p>Câu 1 – Câu 24: 4 thẻ đáp án màu đặc trưng Quizizz kèm hình minh họa SVG sắc nét và giải thích chi tiết.</p>
+          </div>
+          <div class="mode-footer">
+            <span>24 câu (Câu 1 – 24)</span>
+            <span>Luyện tập →</span>
+          </div>
+        </button>
+
+        <button class="mode-card" data-mode="part2" type="button">
+          <div>
+            <span class="mode-tag" style="background: rgba(45,157,166,0.4);">Phần II</span>
+            <h3>3. Trắc nghiệm Đúng / Sai</h3>
+            <p>Câu 25 – Câu 28: Mỗi câu gồm đoạn dẫn đầy đủ và 4 ý a, b, c, d với chấm điểm từng ý rõ ràng.</p>
+          </div>
+          <div class="mode-footer">
+            <span>4 câu / 16 ý (Câu 25 – 28)</span>
+            <span>Luyện tập →</span>
+          </div>
+        </button>
+
+        <button class="mode-card" data-mode="part3" type="button">
+          <div>
+            <span class="mode-tag" style="background: rgba(239,169,41,0.35);">Phần III</span>
+            <h3>4. Trả lời ngắn</h3>
+            <p>Câu 29 – Câu 36: Nhập đáp án số trực tiếp, kiểm tra kết quả và xem nguyên văn Hướng dẫn giải từ tài liệu.</p>
+          </div>
+          <div class="mode-footer">
+            <span>8 câu (Câu 29 – 36)</span>
+            <span>Luyện tập →</span>
+          </div>
+        </button>
+
+        <button class="mode-card study-card" data-mode="study" type="button">
+          <div>
+            <span class="mode-tag" style="background: rgba(45,157,166,0.4);">Tài liệu ôn tập</span>
+            <h3>5. PHẦN 2: TỔNG HỢP CÁC POLYMER VÀ PHẢN ỨNG ĐIỀU CHẾ</h3>
+            <p>Hiển thị nguyên văn đầy đủ 13 polymer điều chế bằng phản ứng TRÙNG HỢP và 6 polymer điều chế bằng phản ứng TRÙNG NGƯNG, hỗ trợ lọc và tìm kiếm nhanh.</p>
+          </div>
+          <div class="mode-footer">
+            <span>19 phản ứng điều chế</span>
+            <span>Mở tài liệu →</span>
+          </div>
+        </button>
+      </section>
+    </main>
+
+    <!-- VIEW 2: QUIZ SCREEN -->
+    <section id="quizView" class="view hidden">
+      <div class="quiz-hud">
+        <div class="hud-row">
+          <div class="hud-stats">
+            <span class="stat-pill" id="hudProgressText">Câu 1 / 36</span>
+            <span class="stat-pill score" id="hudScore">⭐ 0 điểm</span>
+            <span class="stat-pill streak" id="hudStreak">🔥 Chuỗi: 0</span>
+          </div>
+          <button class="btn-secondary" id="finishQuizEarlyBtn" type="button" style="padding: 7px 14px; font-size: 0.85rem;">
+            🏁 Nộp bài &amp; Tổng kết
+          </button>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- Collapsible Question Navigator -->
+      <div id="navPanel" class="nav-panel hidden">
+        <div class="nav-panel-header">
+          <span>🧭 Điều hướng nhanh câu hỏi</span>
+          <div class="nav-legend">
+            <span><span class="legend-dot" style="background: var(--correct-dark);"></span>Đúng</span>
+            <span><span class="legend-dot" style="background: #B45309;"></span>Đúng một phần</span>
+            <span><span class="legend-dot" style="background: var(--wrong-dark);"></span>Sai</span>
+            <span><span class="legend-dot" style="background: rgba(255,255,255,0.18);"></span>Chưa làm</span>
+          </div>
+        </div>
+        <div class="nav-grid" id="navGrid"></div>
+      </div>
+
+      <!-- Question Card -->
+      <article class="question-card" id="questionCard">
+        <div class="q-meta">
+          <span class="q-type-badge" id="qTypeBadge">Phần I • Trắc nghiệm nhiều lựa chọn</span>
+          <span class="q-number-badge" id="qNumberBadge">Câu 1</span>
+        </div>
+
+        <div class="q-text" id="qText"></div>
+        <div id="qChemBox" class="chem-box hidden"></div>
+        <div id="qSvgContainer" class="svg-container hidden"></div>
+
+        <!-- Dynamic Answer Area -->
+        <div id="answerArea"></div>
+
+        <!-- Explanation Area -->
+        <div id="explanationBox" class="explanation-box hidden">
+          <div class="exp-title" id="expTitle"></div>
+          <div class="exp-body" id="expBody"></div>
+        </div>
+      </article>
+
+      <!-- Bottom Navigation Controls -->
+      <div class="quiz-controls">
+        <button class="btn-secondary" id="prevBtn" type="button">← Câu trước</button>
+        <button class="btn-primary" id="nextBtn" type="button">Câu tiếp theo →</button>
+      </div>
+    </section>
+
+    <!-- VIEW 3: SUMMARY SCREEN -->
+    <section id="summaryView" class="view hidden">
+      <div class="summary-card">
+        <div class="badge-showcase">
+          <div class="badge-emoji" id="sumBadgeEmoji">🏆</div>
+          <div class="badge-title" id="sumBadgeTitle">Bậc Thầy Polymer</div>
+        </div>
+        <h2 style="font-size: 1.7rem; font-weight: 900; margin-bottom: 6px;">Hoàn Thành Bài Làm!</h2>
+        <p id="sumSubtitle" style="color: var(--text-muted); font-size: 0.96rem;"></p>
+
+        <div class="summary-stats">
+          <div class="sum-box">
+            <div class="sum-val" id="sumScore">0</div>
+            <div class="sum-label">Tổng điểm</div>
+          </div>
+          <div class="sum-box">
+            <div class="sum-val" id="sumCorrect">0 / 0</div>
+            <div class="sum-label">Câu đúng hoàn toàn</div>
+          </div>
+          <div class="sum-box">
+            <div class="sum-val" id="sumAccuracy">0%</div>
+            <div class="sum-label">Độ chính xác</div>
+          </div>
+          <div class="sum-box">
+            <div class="sum-val" id="sumBestStreak">0</div>
+            <div class="sum-label">Chuỗi đúng dài nhất</div>
+          </div>
+        </div>
+
+        <div class="summary-actions">
+          <button class="btn-primary hidden" id="reviewWrongBtn" type="button">🔍 Xem lại câu sai</button>
+          <button class="btn-secondary" id="retryQuizBtn" type="button">🔄 Làm lại</button>
+          <button class="btn-secondary" id="summaryHomeBtn" type="button">🏠 Về trang chủ</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: STUDY GUIDE (PHẦN 2) -->
+    <section id="studyView" class="view hidden">
+      <div class="study-header-card">
+        <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 6px;">
+          PHẦN 2: TỔNG HỢP CÁC POLYMER VÀ PHẢN ỨNG ĐIỀU CHẾ
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.92rem;">
+          Toàn bộ 13 polymer điều chế bằng phản ứng Trùng hợp và 6 polymer điều chế bằng phản ứng Trùng ngưng nguyên văn từ tài liệu.
+        </p>
+        <div class="study-controls">
+          <input
+            type="text"
+            id="studySearchInput"
+            class="search-input"
+            placeholder="🔎 Tìm tên polymer, monomer, phương trình (VD: PE, nylon-6,6, buna, capron)..."
+          />
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all" type="button">Tất cả (19)</button>
+            <button class="filter-tab" data-filter="trunghop" type="button">Trùng hợp (13)</button>
+            <button class="filter-tab" data-filter="trungngung" type="button">Trùng ngưng (6)</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="studyContent"></div>
+    </section>
+  </div>
+
+  <!-- CUSTOM MODAL DIALOG -->
+  <div id="customModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <h3 id="modalTitle">Xác nhận</h3>
+      <p id="modalMessage"></p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="modalCancelBtn" type="button">Hủy</button>
+        <button class="btn-primary" id="modalConfirmBtn" type="button">Đồng ý</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. WEB AUDIO API SOUND ENGINE (KHÔNG PHỤ THUỘC FILE ÂM THANH NGOÀI)
+       ========================================================================== */
+    const SoundFX = (() => {
+      let ctx = null;
+      let enabled = true;
+
+      function getCtx() {
+        if (!enabled) return null;
+        try {
+          if (!ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) ctx = new AudioCtx();
+          }
+          if (ctx && ctx.state === 'suspended') {
+            ctx.resume();
+          }
+          return ctx;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function playTone(freq, duration, type = 'sine', startTimeOffset = 0, volume = 0.14) {
+        const audio = getCtx();
+        if (!audio) return;
+        const now = audio.currentTime + startTimeOffset;
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(audio.destination);
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      return {
+        setEnabled(val) { enabled = Boolean(val); },
+        isEnabled() { return enabled; },
+        click() {
+          playTone(520, 0.06, 'triangle', 0, 0.08);
+        },
+        correct() {
+          playTone(523.25, 0.12, 'triangle', 0, 0.14);
+          playTone(659.25, 0.12, 'triangle', 0.08, 0.14);
+          playTone(783.99, 0.22, 'triangle', 0.16, 0.16);
+        },
+        streak() {
+          playTone(587.33, 0.1, 'sine', 0, 0.14);
+          playTone(739.99, 0.1, 'sine', 0.07, 0.14);
+          playTone(880.00, 0.12, 'sine', 0.14, 0.15);
+          playTone(1174.66, 0.25, 'triangle', 0.22, 0.16);
+        },
+        wrong() {
+          playTone(240, 0.16, 'sawtooth', 0, 0.1);
+          playTone(180, 0.24, 'sawtooth', 0.12, 0.1);
+        },
+        finish() {
+          playTone(523.25, 0.14, 'triangle', 0, 0.14);
+          playTone(659.25, 0.14, 'triangle', 0.12, 0.14);
+          playTone(783.99, 0.14, 'triangle', 0.24, 0.14);
+          playTone(1046.50, 0.35, 'triangle', 0.36, 0.18);
+        }
+      };
+    })();
+
+    /* ==========================================================================
+       2. SVG ILLUSTRATIONS (KÝ HIỆU NHỰA, CÔNG THỨC CẤU TẠO, SƠ ĐỒ)
+       ========================================================================== */
+    function renderRecycleSymbolSVG(num, label, color = '#1E293B') {
+      return `
+        <svg viewBox="0 0 110 125" width="96" height="110" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ký hiệu tái chế số ${num} ${label}">
+          <g fill="none" stroke="${color}" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Top-left to top-right arrow -->
+            <path d="M 39 38 L 55 12 L 70 36" />
+            <polyline points="62,33 71,37 72,27" />
+            <!-- Right to bottom-right arrow -->
+            <path d="M 76 49 L 92 78 L 62 78" />
+            <polyline points="68,71 61,78 68,85" />
+            <!-- Bottom-left to left arrow -->
+            <path d="M 48 78 L 18 78 L 32 51" />
+            <polyline points="23,55 32,50 35,60" />
+          </g>
+          <text x="55" y="63" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="900" fill="${color}">${num}</text>
+          <text x="55" y="108" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="800" fill="${color}">${label}</text>
+        </svg>
+      `;
+    }
+
+    function getSvgByType(svgType) {
+      if (svgType === 'recycle_all6') {
+        const items = [
+          { n: 1, l: 'PET', c: '#0F766E' },
+          { n: 2, l: 'HDPE', c: '#1D4ED8' },
+          { n: 3, l: 'PVC', c: '#B45309' },
+          { n: 4, l: 'LDPE', c: '#047857' },
+          { n: 5, l: 'PP', c: '#6D28D9' },
+          { n: 6, l: 'PS', c: '#BE123C' }
+        ];
+        return `
+          <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:14px; padding:4px;">
+            ${items.map(it => renderRecycleSymbolSVG(it.n, it.l, it.c)).join('')}
+          </div>
+        `;
+      }
+      if (svgType === 'recycle_1') return renderRecycleSymbolSVG(1, 'PET', '#0F766E');
+      if (svgType === 'recycle_2') return renderRecycleSymbolSVG(2, 'HDPE', '#1D4ED8');
+      if (svgType === 'recycle_4') return renderRecycleSymbolSVG(4, 'LDPE', '#047857');
+
+      if (svgType === 'vulcanization') {
+        return `
+          <svg viewBox="0 0 560 150" width="520" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sơ đồ lưu hóa cao su với cầu nối disulfide">
+            <!-- Top polymer chain -->
+            <path d="M 30 35 Q 90 20 150 35 T 270 35 T 390 35 T 530 35" fill="none" stroke="#334155" stroke-width="4" stroke-linecap="round"/>
+            <!-- Bottom polymer chain -->
+            <path d="M 30 115 Q 90 130 150 115 T 270 115 T 390 115 T 530 115" fill="none" stroke="#334155" stroke-width="4" stroke-linecap="round"/>
+            <!-- Disulfide bridges -->
+            <line x1="150" y1="35" x2="150" y2="115" stroke="#D97706" stroke-width="3.5" stroke-dasharray="6,4"/>
+            <circle cx="150" cy="60" r="11" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+            <text x="150" y="64" text-anchor="middle" font-size="12" font-weight="800" fill="#B45309">S</text>
+            <circle cx="150" cy="90" r="11" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+            <text x="150" y="94" text-anchor="middle" font-size="12" font-weight="800" fill="#B45309">S</text>
+
+            <line x1="390" y1="35" x2="390" y2="115" stroke="#D97706" stroke-width="3.5" stroke-dasharray="6,4"/>
+            <circle cx="390" cy="60" r="11" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+            <text x="390" y="64" text-anchor="middle" font-size="12" font-weight="800" fill="#B45309">S</text>
+            <circle cx="390" cy="90" r="11" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+            <text x="390" y="94" text-anchor="middle" font-size="12" font-weight="800" fill="#B45309">S</text>
+
+            <text x="270" y="79" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#B45309">— cầu nối disulfide (–S–S–) —</text>
+          </svg>
+        `;
+      }
+
+      if (svgType === 'q24_polymers') {
+        return `
+          <svg viewBox="0 0 820 205" width="800" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="4 công thức cấu tạo polymer (I), (II), (III), (IV)">
+            <style>
+              .s-txt { font-family: Inter, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #0F172A; }
+              .s-sub { font-size: 10px; }
+              .s-lbl { font-family: Inter, Arial, sans-serif; font-size: 15px; font-weight: 800; fill: #6D28D9; }
+              .s-ln  { stroke: #0F172A; stroke-width: 2; fill: none; stroke-linecap: round; }
+            </style>
+
+            <!-- (I): [-CH2-CH(COOCH3)-]n -->
+            <g transform="translate(10,10)">
+              <path d="M 28 20 L 18 20 L 18 148 L 28 148" class="s-ln"/>
+              <path d="M 158 20 L 168 20 L 168 148 L 158 148" class="s-ln"/>
+              <text x="174" y="154" class="s-txt">n</text>
+              <line x1="6" y1="106" x2="26" y2="106" class="s-ln"/>
+              <text x="30" y="111" class="s-txt">CH<tspan dy="4" class="s-sub">2</tspan></text>
+              <line x1="65" y1="106" x2="88" y2="106" class="s-ln"/>
+              <text x="93" y="111" class="s-txt">C</text>
+              <line x1="108" y1="106" x2="178" y2="106" class="s-ln"/>
+              <!-- Down to H -->
+              <line x1="98" y1="115" x2="98" y2="132" class="s-ln"/>
+              <text x="93" y="146" class="s-txt">H</text>
+              <!-- Up to C(=O)OCH3 -->
+              <line x1="98" y1="95" x2="98" y2="75" class="s-ln"/>
+              <text x="93" y="70" class="s-txt">C</text>
+              <!-- C=O -->
+              <line x1="91" y1="59" x2="77" y2="48" class="s-ln"/>
+              <line x1="87" y1="63" x2="73" y2="52" class="s-ln"/>
+              <text x="60" y="49" class="s-txt">O</text>
+              <!-- C-O-CH3 -->
+              <line x1="105" y1="61" x2="122" y2="50" class="s-ln"/>
+              <text x="124" y="51" class="s-txt">O</text>
+              <line x1="130" y1="36" x2="130" y2="25" class="s-ln"/>
+              <text x="118" y="21" class="s-txt">CH<tspan dy="4" class="s-sub">3</tspan></text>
+              <text x="93" y="182" text-anchor="middle" class="s-lbl">(I)</text>
+            </g>
+
+            <!-- (II): [-CH2-C(CH3)(COOCH3)-]n -->
+            <g transform="translate(215,10)">
+              <path d="M 28 20 L 18 20 L 18 148 L 28 148" class="s-ln"/>
+              <path d="M 158 20 L 168 20 L 168 148 L 158 148" class="s-ln"/>
+              <text x="174" y="154" class="s-txt">n</text>
+              <line x1="6" y1="106" x2="26" y2="106" class="s-ln"/>
+              <text x="30" y="111" class="s-txt">CH<tspan dy="4" class="s-sub">2</tspan></text>
+              <line x1="65" y1="106" x2="88" y2="106" class="s-ln"/>
+              <text x="93" y="111" class="s-txt">C</text>
+              <line x1="108" y1="106" x2="178" y2="106" class="s-ln"/>
+              <!-- Down to CH3 -->
+              <line x1="98" y1="115" x2="98" y2="132" class="s-ln"/>
+              <text x="84" y="146" class="s-txt">CH<tspan dy="4" class="s-sub">3</tspan></text>
+              <!-- Up to C(=O)OCH3 -->
+              <line x1="98" y1="95" x2="98" y2="75" class="s-ln"/>
+              <text x="93" y="70" class="s-txt">C</text>
+              <line x1="91" y1="59" x2="77" y2="48" class="s-ln"/>
+              <line x1="87" y1="63" x2="73" y2="52" class="s-ln"/>
+              <text x="60" y="49" class="s-txt">O</text>
+              <line x1="105" y1="61" x2="122" y2="50" class="s-ln"/>
+              <text x="124" y="51" class="s-txt">O</text>
+              <line x1="130" y1="36" x2="130" y2="25" class="s-ln"/>
+              <text x="118" y="21" class="s-txt">CH<tspan dy="4" class="s-sub">3</tspan></text>
+              <text x="93" y="182" text-anchor="middle" class="s-lbl">(II)</text>
+            </g>
+
+            <!-- (III): [-CH2-C(CH3)(COOCH2CH3)-]n -->
+            <g transform="translate(420,10)">
+              <path d="M 28 16 L 18 16 L 18 148 L 28 148" class="s-ln"/>
+              <path d="M 164 16 L 174 16 L 174 148 L 164 148" class="s-ln"/>
+              <text x="180" y="154" class="s-txt">n</text>
+              <line x1="6" y1="106" x2="26" y2="106" class="s-ln"/>
+              <text x="30" y="111" class="s-txt">CH<tspan dy="4" class="s-sub">2</tspan></text>
+              <line x1="65" y1="106" x2="88" y2="106" class="s-ln"/>
+              <text x="93" y="111" class="s-txt">C</text>
+              <line x1="108" y1="106" x2="184" y2="106" class="s-ln"/>
+              <!-- Down to CH3 -->
+              <line x1="98" y1="115" x2="98" y2="132" class="s-ln"/>
+              <text x="84" y="146" class="s-txt">CH<tspan dy="4" class="s-sub">3</tspan></text>
+              <!-- Up to C(=O)OCH2CH3 -->
+              <line x1="98" y1="95" x2="98" y2="75" class="s-ln"/>
+              <text x="93" y="70" class="s-txt">C</text>
+              <line x1="91" y1="59" x2="77" y2="48" class="s-ln"/>
+              <line x1="87" y1="63" x2="73" y2="52" class="s-ln"/>
+              <text x="60" y="49" class="s-txt">O</text>
+              <line x1="105" y1="61" x2="122" y2="50" class="s-ln"/>
+              <text x="124" y="51" class="s-txt">O</text>
+              <line x1="130" y1="36" x2="130" y2="27" class="s-ln"/>
+              <text x="118" y="23" class="s-txt">CH<tspan dy="4" class="s-sub">2</tspan></text>
+              <line x1="115" y1="16" x2="100" y2="10" class="s-ln"/>
+              <text x="64" y="12" class="s-txt">H<tspan dy="4" class="s-sub">3</tspan><tspan dy="-4">C</tspan></text>
+              <text x="96" y="182" text-anchor="middle" class="s-lbl">(III)</text>
+            </g>
+
+            <!-- (IV): [-CH2-C(CH3)(OCOCH3)-]n -->
+            <g transform="translate(625,10)">
+              <path d="M 28 20 L 18 20 L 18 148 L 28 148" class="s-ln"/>
+              <path d="M 158 20 L 168 20 L 168 148 L 158 148" class="s-ln"/>
+              <text x="174" y="154" class="s-txt">n</text>
+              <line x1="6" y1="106" x2="26" y2="106" class="s-ln"/>
+              <text x="30" y="111" class="s-txt">CH<tspan dy="4" class="s-sub">2</tspan></text>
+              <line x1="65" y1="106" x2="88" y2="106" class="s-ln"/>
+              <text x="93" y="111" class="s-txt">C</text>
+              <line x1="108" y1="106" x2="178" y2="106" class="s-ln"/>
+              <!-- Down to CH3 -->
+              <line x1="98" y1="115" x2="98" y2="132" class="s-ln"/>
+              <text x="84" y="146" class="s-txt">CH<tspan dy="4" class="s-sub">3</tspan></text>
+              <!-- Up to O-C(=O)-CH3 -->
+              <line x1="98" y1="95" x2="98" y2="75" class="s-ln"/>
+              <text x="92" y="70" class="s-txt">O</text>
+              <line x1="105" y1="62" x2="120" y2="54" class="s-ln"/>
+              <text x="122" y="56" class="s-txt">C</text>
+              <line x1="133" y1="53" x2="147" y2="61" class="s-ln"/>
+              <line x1="135" y1="48" x2="149" y2="56" class="s-ln"/>
+              <text x="150" y="66" class="s-txt">O</text>
+              <line x1="127" y1="41" x2="127" y2="27" class="s-ln"/>
+              <text x="115" y="23" class="s-txt">CH<tspan dy="4" class="s-sub">3</tspan></text>
+              <text x="93" y="182" text-anchor="middle" class="s-lbl">(IV)</text>
+            </g>
+          </svg>
+        `;
+      }
+
+      if (svgType === 'polymer_t') {
+        return `
+          <svg viewBox="0 0 640 130" width="600" height="125" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Đoạn mạch Polymer T">
+            <style>
+              .pt-txt { font-family: Inter, Arial, sans-serif; font-size: 17px; font-weight: 800; fill: #0F172A; }
+              .pt-sub { font-size: 12px; }
+              .pt-ln  { stroke: #0F172A; stroke-width: 2.5; stroke-linecap: round; }
+              .pt-dbl { stroke: #BE123C; stroke-width: 2.5; stroke-linecap: round; }
+              .pt-lbl { font-family: Inter, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #6D28D9; }
+            </style>
+            <!-- Brackets / chain ends -->
+            <line x1="25" y1="48" x2="55" y2="48" class="pt-ln" stroke-dasharray="5,4"/>
+            <text x="60" y="54" class="pt-txt">CH<tspan dy="4" class="pt-sub">2</tspan></text>
+            <line x1="102" y1="48" x2="132" y2="48" class="pt-ln"/>
+            <text x="138" y="54" class="pt-txt">CH</text>
+            <!-- Double bond -->
+            <line x1="168" y1="44" x2="200" y2="44" class="pt-dbl"/>
+            <line x1="168" y1="51" x2="200" y2="51" class="pt-dbl"/>
+            <text x="206" y="54" class="pt-txt">CH</text>
+            <line x1="236" y1="48" x2="266" y2="48" class="pt-ln"/>
+            <text x="272" y="54" class="pt-txt">CH<tspan dy="4" class="pt-sub">2</tspan></text>
+            <line x1="315" y1="48" x2="352" y2="48" class="pt-ln"/>
+            <text x="358" y="54" class="pt-txt">CH</text>
+            <!-- Branch C6H5 -->
+            <line x1="370" y1="62" x2="370" y2="85" class="pt-ln"/>
+            <rect x="336" y="87" width="68" height="28" rx="8" fill="#F3E8FF" stroke="#6D28D9" stroke-width="2"/>
+            <text x="370" y="106" text-anchor="middle" class="pt-txt" style="font-size:15px; fill:#6D28D9;">C<tspan dy="3" class="pt-sub">6</tspan><tspan dy="-3">H</tspan><tspan dy="3" class="pt-sub">5</tspan></text>
+            <!-- Continue chain -->
+            <line x1="390" y1="48" x2="425" y2="48" class="pt-ln"/>
+            <text x="431" y="54" class="pt-txt">CH<tspan dy="4" class="pt-sub">2</tspan></text>
+            <line x1="475" y1="48" x2="515" y2="48" class="pt-ln" stroke-dasharray="5,4"/>
+
+            <!-- Label -->
+            <text x="320" y="20" text-anchor="middle" class="pt-lbl">Đoạn mạch Polymer T: –CH₂–CH=CH–CH₂–CH(C₆H₅)–CH₂–</text>
+          </svg>
+        `;
+      }
+
+      return '';
+    }
+
+    /* ==========================================================================
+       3. DỮ LIỆU NGUYÊN VĂN ĐẦY ĐỦ 36 CÂU HỎI (KHÔNG RÚT GỌN)
+       ========================================================================== */
+    const QUESTIONS = [
+      // === PHẦN I: TRẮC NGHIỆM NHIỀU LỰA CHỌN (CÂU 1 – CÂU 24) ===
+      {
+        id: 1,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 1. Cho sơ đồ lưu hóa cao su:\nQuá trình lưu hoá cao su thuộc loại phản ứng',
+        svg: 'vulcanization',
+        options: {
+          A: 'cắt mạch polymer.',
+          B: 'phân huỷ polymer.',
+          C: 'tăng mạch polymer.',
+          D: 'giữ nguyên mạch polymer.'
+        },
+        answer: 'C',
+        explanation: 'Theo dữ kiện Câu 15 trong tài liệu, phản ứng lưu hóa cao su thuộc loại phản ứng tăng mạch polymer, tạo các cầu nối disulfide tạo mạng lưới không gian.'
+      },
+      {
+        id: 2,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 2. Các động vật ăn cỏ như trâu, bò, dê, cừu,... có thể chuyển hoá cellulose trong thức ăn thành glucose bằng enzyme cellulase để cung cấp năng lượng cho cơ thể. Phản ứng chuyển hoá cellulose thành glucose thuộc loại phản ứng nào sau đây?',
+        options: {
+          A: 'Giữ nguyên mạch polymer.',
+          B: 'Tăng mạch polymer',
+          C: 'Trùng ngưng',
+          D: 'Cắt mạch polymer.'
+        },
+        answer: 'D',
+        explanation: 'Quá trình chuyển hóa cellulose thành glucose là phản ứng cắt mạch polymer.'
+      },
+      {
+        id: 3,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 3. Trong các phản ứng giữa các cặp chất dưới đây ở điều kiện thích hợp, phản ứng nào làm giảm mạch polymer?',
+        options: {
+          A: 'Cao su thiên nhiên + HCl',
+          B: 'Poly(vinyl acetate) + NaOH (t°)',
+          C: 'Tinh bột + H₂O (t°, H⁺)',
+          D: 'Poly(vinyl chloride) + Cl₂.'
+        },
+        answer: 'C',
+        explanation: 'Phản ứng thủy phân tinh bột trong môi trường acid đun nóng (Tinh bột + H₂O (t°, H⁺)) làm cắt/giảm mạch polymer.'
+      },
+      {
+        id: 4,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 4. Cho phản ứng hóa học sau:\nPhản ứng trên thuộc loại phản ứng nào sau đây?',
+        chem: '(-CH₂-CH=C(CH₃)-CH₂-)ₙ + nHCl → (-CH₂-CH₂-C(Cl)(CH₃)-CH₂-)ₙ',
+        options: {
+          A: 'Phản ứng trùng ngưng.',
+          B: 'Phản ứng phân cắt mạch polymer.',
+          C: 'Phản ứng tăng mạch polymer.',
+          D: 'Phản ứng giữ nguyên mạch polymer.'
+        },
+        answer: 'D',
+        explanation: 'Phản ứng cộng HCl vào liên kết đôi trong mạch cao su thiên nhiên thuộc loại phản ứng giữ nguyên mạch polymer.'
+      },
+      {
+        id: 5,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 5. Cho phản ứng nhiệt phân polystyrene:\nPhản ứng trên thuộc loại',
+        chem: '(-CH₂-CH(C₆H₅)-)ₙ —(t°)→ n CH₂=CH(C₆H₅)',
+        options: {
+          A: 'phản ứng trùng hợp polymer.',
+          B: 'phản ứng giữ nguyên mạch polymer.',
+          C: 'phản ứng tăng mạch polymer.',
+          D: 'phản ứng cắt mạch polymer.'
+        },
+        answer: 'D',
+        explanation: 'Nhiệt phân polystyrene tạo monomer styrene thuộc loại phản ứng cắt mạch polymer.'
+      },
+      {
+        id: 6,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 6. Hình dưới đây là ký hiệu của 6 polymer nhiệt dẻo phổ biến có thể tái chế:\nCác ký hiệu này thường được in trên bao bì, vỏ hộp, đồ dùng....để giúp nhận biết vật liệu polymer cũng như thuận lợi cho việc thu gom, tái chế. Polymer có ký hiệu số 6 được điều chế bằng phản ứng trùng hợp monomer là',
+        svg: 'recycle_all6',
+        options: {
+          A: 'CH₂=CH-Cl.',
+          B: 'CH₂=CH-C₆H₅.',
+          C: 'CH₂=CH-CH₃.',
+          D: 'CH₂=CH₂.'
+        },
+        answer: 'B',
+        explanation: 'Polymer ký hiệu số 6 là Polystyrene (PS). Theo Phần 2 mục I.4, PS được điều chế bằng phản ứng trùng hợp monomer C₆H₅-CH=CH₂ (CH₂=CH-C₆H₅).'
+      },
+      {
+        id: 7,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 7. LDPE là một chất dẻo dễ tạo màng, có tính dai bền nên được sử dụng làm túi nylon, màng bọc, bao gói thực phẩm. LDPE thuộc nhóm nhựa PE (polyethylene) và thường được nhận biết qua ký hiệu đặc trưng in trên bao bì như hình bên. LDPE được tổng hợp từ monomer nào đây?',
+        svg: 'recycle_4',
+        options: {
+          A: 'CH₂=CH-Cl.',
+          B: 'CH₂=CH₂.',
+          C: 'CH₂=CH-C₆H₅.',
+          D: 'CH₂=CH-CH₃.'
+        },
+        answer: 'B',
+        explanation: 'LDPE thuộc nhóm nhựa PE (polyethylene). Theo Phần 2 mục I.1, Polyethylene (PE) được điều chế từ monomer CH₂=CH₂.'
+      },
+      {
+        id: 8,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 8. Nhựa HDPE (kí hiệu ở hình bên) là loại nhựa nhiệt dẻo có đặc điểm cứng, chống chịu va đập, kéo căng tốt hơn so với nhựa thông thường. Đây là nhựa tổng hợp dùng phổ biến nhất trong sản xuất hiện nay. Nhựa HDPE được sản xuất từ polymer nào sau đây?',
+        svg: 'recycle_2',
+        options: {
+          A: 'Polyethylene.',
+          B: 'Polypropylene.',
+          C: 'Polystyrene.',
+          D: 'Polyisoprene.'
+        },
+        answer: 'A',
+        explanation: 'Nhựa HDPE (ký hiệu số 2) được sản xuất từ polymer Polyethylene.'
+      },
+      {
+        id: 9,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 9. Hình dưới đây là ký hiệu của 6 polymer nhiệt dẻo phổ biến có thể tái chế:\nCác ký hiệu này thường được in trên bao bì, vỏ hộp, đồ dùng,... để giúp nhận biết vật liệu polymer cũng như thuận lợi cho việc thu gom, tái chế. Polymer có ký hiệu số 2 và số 4 được điều chế bằng phản ứng trùng hợp monomer nào dưới đây?',
+        svg: 'recycle_all6',
+        options: {
+          A: 'CH₂=CH-CH₃.',
+          B: 'CH₂=CH₂.',
+          C: 'CH₂=CH-Cl.',
+          D: 'CH₂=CH-C₆H₅.'
+        },
+        answer: 'B',
+        explanation: 'Ký hiệu số 2 (HDPE) và số 4 (LDPE) đều thuộc nhóm Polyethylene (PE), được điều chế bằng phản ứng trùng hợp monomer CH₂=CH₂ (Phần 2 mục I.1).'
+      },
+      {
+        id: 10,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 10. Hình dưới đây là ký hiệu của 6 polymer nhiệt dẻo phổ biến có thể tái chế:\nCác ký hiệu này thường được in trên bao bì, vỏ hộp, đồ dùng... để giúp nhận biết vật liệu polymer cũng như thuận lợi cho việc thu gom, tái chế. Polymer có ký hiệu số 5 được điều chế bằng phản ứng trùng hợp monomer nào dưới đây?',
+        svg: 'recycle_all6',
+        options: {
+          A: 'CH₂=CH-Cl.',
+          B: 'CH₂=CH-C₆H₅.',
+          C: 'CH₂=CH₂.',
+          D: 'CH₂=CH-CH₃.'
+        },
+        answer: 'D',
+        explanation: 'Polymer ký hiệu số 5 là Polypropylene (PP). Theo Phần 2 mục I.2, PP được điều chế từ monomer CH₂=CH-CH₃.'
+      },
+      {
+        id: 11,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 11. Cho các vật liệu polymer thuộc loại chất dẻo mô tả như hình sau. Các polymer này có thể tái chế được, các kí hiệu này thường được in trên bao bì, vỏ hộp, đồ dùng,... để giúp nhận biết vật liệu polymer cũng như thuận lợi trong việc thu gom và tái chế.\nPhát biểu nào sau đây đúng ?',
+        svg: 'recycle_all6',
+        options: {
+          A: 'Ba mũi tên của các kí hiệu nhựa trên tương ứng thuật ngữ 3R: Reduce (tiết giảm), Reused (tái sử dụng) và Recycle (tái chế).',
+          B: 'Các polymer trên đều được tổng hợp từ phản ứng trùng hợp các monomer tương ứng.',
+          C: 'Trong 6 polymer trên, có 3 polymer nhiệt dẻo và 3 polymer nhiệt rắn.',
+          D: 'Loại polymer 3 là nguyên liệu chính để sản xuất túi nylon, màng bọc thực phẩm...'
+        },
+        answer: 'A',
+        explanation: 'B sai vì PET (số 1) điều chế bằng phản ứng trùng ngưng (Phần 2 mục II.4); C sai vì cả 6 polymer đều là polymer nhiệt dẻo (Câu 6, 9, 10); D sai vì túi nylon, màng bọc thực phẩm dùng LDPE (số 4, Câu 7).'
+      },
+      {
+        id: 12,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 12. Dãy nào sau đây chỉ gồm các polymer tổng hợp?',
+        options: {
+          A: 'Tinh bột, cellulose, cao su thiên nhiên, polybutadiene.',
+          B: 'Polypropylene, cellulose, nylon-7, nylon-6,6.',
+          C: 'Polypropylene, tinh bột, nylon-7, cao su thiên nhiên.',
+          D: 'Polypropylene, polybutadiene, nylon-7, nylon-6,6.'
+        },
+        answer: 'D',
+        explanation: 'Polypropylene, polybutadiene, nylon-7, nylon-6,6 đều là polymer tổng hợp (tinh bột, cellulose, cao su thiên nhiên là polymer thiên nhiên).'
+      },
+      {
+        id: 13,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 13. Cho các polymer sau: cao su buna, tơ nylon-6,6, poly(methyl methacrylate), polyethylene, tơ olon, poly(vinyl chloride). Số polymer được điều chế bằng phản ứng trùng hợp là',
+        options: {
+          A: '3.',
+          B: '5.',
+          C: '4.',
+          D: '2.'
+        },
+        answer: 'B',
+        explanation: 'Theo Phần 2 mục I, có 5 polymer điều chế bằng phản ứng trùng hợp: cao su buna, poly(methyl methacrylate), polyethylene, tơ olon, poly(vinyl chloride). Tơ nylon-6,6 điều chế bằng phản ứng trùng ngưng (Phần 2 mục II.1).'
+      },
+      {
+        id: 14,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 14. Cho các polymer sau: (1) tơ tằm; (2) sợi bông; (3) tơ visco; (4) tơ capron; (5) tơ cellulose acetate. Những polymer có nguồn gốc từ cellulose là',
+        options: {
+          A: '(2), (3), (5).',
+          B: '(3), (4), (5).',
+          C: '(1), (4), (5).',
+          D: '(1), (2), (3).'
+        },
+        answer: 'A',
+        explanation: 'Các polymer có nguồn gốc từ cellulose gồm: (2) sợi bông, (3) tơ visco, (5) tơ cellulose acetate.'
+      },
+      {
+        id: 15,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 15. Cao su tự nhiên có tính đàn hồi, không dẫn điện, chịu mài mòn, không thấm khí và nước, không tan trong nước và một số dung môi hữu cơ như ethanol,... nhưng tan trong xăng, benzene,... Do có liên kết đôi trong phân tử polymer nên cao su tự nhiên có thể tham gia các phản ứng cộng với H₂, HCl, Cl₂,... Khi cho cao su tác dụng với lưu huỳnh thu được cao su lưu hoá. Cao su sau khi lưu hoá có các cầu nối disulfide tạo mạng lưới không gian nên có các tính chất lý hoá nổi trội hơn so với cao su ban đầu,...\nCho các phát biểu sau:\n(a) Cao su tự nhiên được điều chế từ phản ứng trùng hợp isoprene C₅H₈.\n(b) Cao su lưu hóa có mạch mạng lưới không gian.\n(c) Phản ứng lưu hóa cao su thuộc loại phản ứng tăng mạch polymer.\n(d) Phản ứng cộng HCl vào cao su tự nhiên thuộc loại phản ứng tăng mạch polymer.\nCác phát biểu đúng là',
+        options: {
+          A: '(a), (b), (d).',
+          B: '(b), (c).',
+          C: '(b), (c), (d).',
+          D: '(a), (b), (c).'
+        },
+        answer: 'B',
+        explanation: '(b) đúng theo dữ kiện đề bài ("tạo mạng lưới không gian"); (c) đúng; (a) sai vì cao su tự nhiên lấy từ thiên nhiên, trùng hợp isoprene tạo cao su tổng hợp (cao su isopren); (d) sai vì cộng HCl thuộc loại phản ứng giữ nguyên mạch polymer.'
+      },
+      {
+        id: 16,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 16. Ô nhiễm môi trường do chất dẻo và rác thải nhựa đang là vấn đề được quan tâm. Cho các phát biểu sau:\n(a) Các loại nhựa được tạo ra từ chất dẻo khi thải ra môi trường mất nhiều thời gian để phân hủy.\n(b) Rác thải nhựa sau thu gom nên đốt hoặc chôn lấp để giảm thiểu lượng rác thải.\n(c) Sử dụng vật liệu phân hủy sinh học để thay thế một số loại chất dẻo.\n(d) Nên phân loại rác thải tại các nguồn để đưa ra cách xử lí.\nSố phát biểu đúng là',
+        options: {
+          A: '1.',
+          B: '2.',
+          C: '3.',
+          D: '4.'
+        },
+        answer: 'C',
+        explanation: 'Có 3 phát biểu đúng là (a), (c), (d). Phát biểu (b) sai vì đốt hoặc chôn lấp rác thải nhựa gây ô nhiễm môi trường.'
+      },
+      {
+        id: 17,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 17. Trong các loại tơ: len lông cừu, tơ tằm, tơ capron, tơ nitron, tơ visco có bao nhiêu tơ tổng hợp?',
+        options: {
+          A: '4.',
+          B: '2.',
+          C: '1.',
+          D: '5.'
+        },
+        answer: 'B',
+        explanation: 'Có 2 tơ tổng hợp là tơ capron và tơ nitron (len lông cừu, tơ tằm là tơ thiên nhiên; tơ visco là tơ bán tổng hợp).'
+      },
+      {
+        id: 18,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 18. Cho các phát biểu sau:\n(a) Chất dẻo có thành phần chính là polymer, ngoài ra còn có chất độn, chất hóa dẻo,...\n(b) Vật liệu composite thường gồm hai thành phần chính là vật liệu cốt và vật liệu nền.\n(c) Một trong những phương pháp xử lí rác thải nhựa không gây ô nhiễm môi trường là đốt cháy.\n(d) Tơ tằm, len đều có thành phần chính là protein, vì vậy chúng rất bền nhiệt và bền trong môi trường kiềm.\n(e) Keo dán epoxy gồm hai thành phần là chất hữu cơ có nhóm –COOH và –NH₂ ở hai đầu và chất đóng rắn.\nSố phát biểu đúng là',
+        options: {
+          A: '5.',
+          B: '2.',
+          C: '3.',
+          D: '4.'
+        },
+        answer: 'B',
+        explanation: 'Có 2 phát biểu đúng là (a) và (b). Các phát biểu (c), (d), (e) đều sai.'
+      },
+      {
+        id: 19,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 19. Qiana là tên thương mại của một loại tơ nylon được sử dụng để sản xuất vải lụa chống nhăn cao cấp. Qiana có công thức cấu tạo là polyamide (chứa nhóm -CO-NH-). Nhận xét nào sau đây đúng?',
+        options: {
+          A: 'Các monomer dùng để tổng hợp Qiana có cấu tạo như sau: (chứa nhóm -OH và -NH₂ theo hình trong đề).',
+          B: 'Tơ nylon làm từ tơ Qiana thuộc loại tơ nhân tạo.',
+          C: 'Qiana thuộc loại polyamide được điều chế từ phản ứng trùng hợp các monomer đa chức tương ứng.',
+          D: 'Tơ này kém bền trong môi trường acid hoặc base mạnh.'
+        },
+        answer: 'D',
+        explanation: 'Qiana là tơ polyamide (tơ nylon) nên kém bền trong môi trường acid hoặc base mạnh.'
+      },
+      {
+        id: 20,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 20. Poly(ethylene terephthalate) (viết tắt là PET) được điều chế theo sơ đồ phản ứng sau:\nPET có mã số kí hiệu trên sản phẩm là số 1 (như hình) và thuộc loại polymer nhiệt dẻo phổ biến nhất, có thể tái chế và được sử dụng chế tạo dệt sợi may quần áo, thảm, đồ hộp đựng chất lỏng và thực phẩm. Trong một mắt xích PET, phần trăm khối lượng oxygen là',
+        chem: 'n HO-CH₂-CH₂-OH + n HOOC-C₆H₄-COOH → (-O-CH₂-CH₂-O-CO-C₆H₄-CO-)ₙ + 2n H₂O',
+        svg: 'recycle_1',
+        options: {
+          A: '61,85%.',
+          B: '62,50%.',
+          C: '53,09%.',
+          D: '33,33%.'
+        },
+        answer: 'D',
+        explanation: 'Một mắt xích PET có công thức C₁₀H₈O₄ (M = 192). Phần trăm khối lượng oxygen = (4 × 16 / 192) × 100% = 33,33%.'
+      },
+      {
+        id: 21,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 21. Polymer X được sử dụng trong sản xuất hộp xốp nhựa đựng thực phẩm, vỏ nhựa CD, DVD, đồ chơi trẻ em, máy vi tính, máy sấy tóc, thiết bị nhà bếp. Phân tích thành phần nguyên tố của monomer dùng điều chế X thu được kết quả: %C = 92,31%; %H = 7,69% (về khối lượng). Từ phổ khối lượng xác định được phân tử khối của monomer bằng 104. Tên của polymer X là',
+        options: {
+          A: 'Polypropylene.',
+          B: 'Polybuta-1,3-diene.',
+          C: 'Polystyrene.',
+          D: 'Polyethylene.'
+        },
+        answer: 'C',
+        explanation: 'Số nguyên tử C = (104 × 92,31%) / 12 ≈ 8; số nguyên tử H = (104 × 7,69%) / 1 ≈ 8 ⇒ monomer là C₈H₈ (styrene) ⇒ polymer X là Polystyrene.'
+      },
+      {
+        id: 22,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 22. Phản ứng tổng quát tổng hợp polymer sau:\nCho các phát biểu sau:\n(a) Polymer trên được tổng hợp theo phương pháp trùng hợp.\n(b) Khi -R lần lượt là các gốc -H, -CH₃, -Cl, -C₆H₅ (phenyl), các polymer dùng làm chất dẻo lần lượt là polyethylene, polypropylene, poly(vinyl chloride), polystyrene.\n(c) Khi -R là gốc -CN (cyanide), polymer tạo thành ứng dụng để dệt vải may quần áo ấm, vải bạt, mái hiên ngoài trời, vải làm cánh buồm, sợi gia cường.\n(d) Khi gốc -R là gốc -OCOCH₃, polymer có khả năng bị thủy phân trong dung dịch NaOH tạo thành một phân tử polymer khác.\nSố phát biểu đúng là',
+        chem: 'n CH₂=CH(R) —(xt, t°, p)→ (-CH₂-CH(R)-)ₙ',
+        options: {
+          A: '2.',
+          B: '4.',
+          C: '3.',
+          D: '1.'
+        },
+        answer: 'B',
+        explanation: 'Cả 4 phát biểu (a), (b), (c), (d) đều đúng.'
+      },
+      {
+        id: 23,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 23. Hemoglobin (huyết cầu tố) có phân tử khối là 14000. Mỗi phân tử hemoglobin chỉ chứa 1 nguyên tử sắt. Phần trăm về khối lượng của sắt trong hemoglobin là',
+        options: {
+          A: '0,40%.',
+          B: '0,80%.',
+          C: '4,00%.',
+          D: '0,25%.'
+        },
+        answer: 'A',
+        explanation: '%m(Fe) = (56 / 14000) × 100% = 0,40%.'
+      },
+      {
+        id: 24,
+        part: 'part1',
+        type: 'mcq',
+        text: 'Câu 24. Cho các polymer sau:\nPolymer được điều chế bằng phản ứng trùng hợp methyl acrylate là',
+        svg: 'q24_polymers',
+        options: {
+          A: '(IV).',
+          B: '(I).',
+          C: '(II).',
+          D: '(III).'
+        },
+        answer: 'B',
+        explanation: 'Methyl acrylate có công thức CH₂=CH-COOCH₃, khi trùng hợp tạo polymer (I): (-CH₂-CH(COOCH₃)-)ₙ.'
+      },
+
+      // === PHẦN II: TRẮC NGHIỆM ĐÚNG / SAI (CÂU 25 – CÂU 28) ===
+      {
+        id: 25,
+        part: 'part2',
+        type: 'tf',
+        text: 'Câu 25. Trong những năm 30 của thế kỉ XX, các nhà hóa học của hãng Du Pont (Mỹ) đã thông báo phát minh ra một loại vật liệu “mỏng hơn tơ nhện, bền hơn thép và đẹp hơn lụa”. Theo thời gian, vật liệu này đã có mặt trong cuộc sống hàng ngày của con người, phổ biến trong các sản phẩm như lốp xe, dù, quần áo, tất,... Hãng Du Pont đã thu được hàng tỷ đô la mỗi năm bằng sáng chế về loại vật liệu này. Một trong số vật liệu đó là tơ capron.',
+        statements: [
+          {
+            key: 'a',
+            text: 'a) Vải làm từ tơ capron bền trong môi trường base và acid.',
+            answer: false,
+            explanation: 'Sai.'
+          },
+          {
+            key: 'b',
+            text: 'b) Capron có thể được điều chế từ phản ứng trùng hợp.',
+            answer: true,
+            explanation: 'Đúng (Phần 2 mục I.13: trùng hợp mở vòng caprolactam).'
+          },
+          {
+            key: 'c',
+            text: 'c) Đoạn mạch tơ capron có khối lượng phân tử là 15000 đvC. Số lượng mắt xích trong đoạn mạch capron này là khoảng 133 (làm tròn đến hàng đơn vị, không làm tròn các phép tính trung gian chỉ làm tròn phép tính cuối cùng).',
+            answer: true,
+            explanation: 'Đúng (15000 / 113 ≈ 132,74 ≈ 133).'
+          },
+          {
+            key: 'd',
+            text: 'd) Công thức một đoạn mạch của tơ capron là -NH[CH₂]₅CO-.',
+            answer: true,
+            explanation: 'Đúng (Mắt xích tơ capron theo Phần 2 mục I.13 và II.2 là -NH-[CH₂]₅-CO-).'
+          }
+        ]
+      },
+      {
+        id: 26,
+        part: 'part2',
+        type: 'tf',
+        text: 'Câu 26. Tơ cellulose acetate có thành phần chủ yếu là cellulose triacetate và cellulose diacetate được sử dụng trong công nghiệp dệt may với tính năng nổi trội như độ bền cơ học cao, khả năng chống mài mòn tốt, độ trong suốt,... Phân tích thành phần nguyên tố của một mẫu tơ cellulose acetate người ta thấy oxygen chiếm 44,68% theo khối lượng.',
+        statements: [
+          {
+            key: 'a',
+            text: 'a) Tơ cellulose acetate thuộc loại tơ tổng hợp.',
+            answer: false,
+            explanation: 'Sai (Theo Câu 33, là tơ bán tổng hợp).'
+          },
+          {
+            key: 'b',
+            text: 'b) Tơ cellulose acetate có mạch polymer phân nhánh.',
+            answer: false,
+            explanation: 'Sai.'
+          },
+          {
+            key: 'c',
+            text: 'c) Tơ cellulose acetate được sản xuất từ polymer thiên nhiên là cellulose.',
+            answer: true,
+            explanation: 'Đúng.'
+          },
+          {
+            key: 'd',
+            text: 'd) Trong mẫu cellulose acetate ở trên, trung bình có 2,50 gốc acetate trong một mắt xích polymer.',
+            answer: false,
+            explanation: 'Sai (Giải phương trình 16(5 + x)/(162 + 42x) = 0,4468 ⇒ x ≈ 2,75, không phải 2,50).'
+          }
+        ]
+      },
+      {
+        id: 27,
+        part: 'part2',
+        type: 'tf',
+        text: 'Câu 27. Polymer là các hợp chất cao phân tử có vai trò quan trọng trong cuộc sống và công nghiệp. Tuỳ theo thành phần và cấu trúc mà polymer có thể có tính dẻo, tính đàn hồi,... Dựa vào sự biến đổi khác nhau khi bị đun nóng, polymer có thể được chia thành polymer nhiệt dẻo và polymer nhiệt rắn.',
+        statements: [
+          {
+            key: 'a',
+            text: 'a) Tính chất vật lí của polymer phụ thuộc vào cấu tạo.',
+            answer: true,
+            explanation: 'Đúng.'
+          },
+          {
+            key: 'b',
+            text: 'b) Hầu hết polymer tan được trong nước và có nhiệt độ nóng chảy xác định.',
+            answer: false,
+            explanation: 'Sai.'
+          },
+          {
+            key: 'c',
+            text: 'c) PE và PVC là các polymer có tính dẻo và thuộc loại polymer nhiệt dẻo.',
+            answer: true,
+            explanation: 'Đúng.'
+          },
+          {
+            key: 'd',
+            text: 'd) Polymer nhiệt rắn bị nóng chảy khi đun nóng.',
+            answer: false,
+            explanation: 'Sai.'
+          }
+        ]
+      },
+      {
+        id: 28,
+        part: 'part2',
+        type: 'tf',
+        text: 'Câu 28. Cho các phát biểu sau:',
+        statements: [
+          {
+            key: 'a',
+            text: 'a) Trùng hợp acrylonitrile thu được tơ olon (tơ nitron).',
+            answer: true,
+            explanation: 'Đúng (Phần 2 mục I.7).'
+          },
+          {
+            key: 'b',
+            text: 'b) Tơ nylon-6,6 rất bền trong môi trường kiềm.',
+            answer: false,
+            explanation: 'Sai.'
+          },
+          {
+            key: 'c',
+            text: 'c) Polyethylene được điều chế bằng phản ứng trùng hợp acetylene.',
+            answer: false,
+            explanation: 'Sai (Phần 2 mục I.1: trùng hợp ethylene CH₂=CH₂).'
+          },
+          {
+            key: 'd',
+            text: 'd) Tơ visco, tơ acetate thuộc loại tơ bán tổng hợp.',
+            answer: true,
+            explanation: 'Đúng (Câu 33).'
+          }
+        ]
+      },
+
+      // === PHẦN III: TRẢ LỜI NGẮN (CÂU 29 – CÂU 36) ===
+      {
+        id: 29,
+        part: 'part3',
+        type: 'short',
+        text: 'Câu 29. Cho các polymer sau: cellulose, polybutadiene, tơ tằm, protein, polystyrene, amylose, tơ visco, poly(methyl metacrylate). Có bao nhiêu polymer thuộc loại polymer thiên nhiên?',
+        answer: '4',
+        explanation: 'Hướng dẫn giải:\n4'
+      },
+      {
+        id: 30,
+        part: 'part3',
+        type: 'short',
+        text: 'Câu 30. Thực hiện phản ứng trùng hợp hỗn hợp hai hydrocarbon X và Y (có mặt xúc tác, đun nóng) thu được polymer T. Một đoạn mạch polymer T có công thức cấu tạo như sau:\nTổng số nguyên tử hydrogen có trong một phân tử X và một phân tử Y là bao nhiêu?',
+        svg: 'polymer_t',
+        answer: '14',
+        explanation: 'Hướng dẫn giải:\nNhìn mạch polymer T gồm 2 loại mắt xích lặp lại:\n- Mắt xích từ buta-1,3-diene: -CH2-CH=CH-CH2- (CTPT: C4H6 -> có 6 nguyên tử H).\n- Mắt xích từ styrene: -CH(C6H5)-CH2- (CTPT: C8H8 -> có 8 nguyên tử H).\nTổng số nguyên tử hydrogen trong 1 phân tử X và 1 phân tử Y = 6 + 8 = 14.'
+      },
+      {
+        id: 31,
+        part: 'part3',
+        type: 'short',
+        text: 'Câu 31. Cho các polymer sau: poly(vinyl chloride), poly(methyl methacrylate), polyethylene, polyacrylonitrile. Có bao nhiêu polymer được điều chế bằng phản ứng trùng hợp?',
+        answer: '4',
+        explanation: 'Hướng dẫn giải:\nPhản ứng trùng hợp áp dụng cho các monomer có liên kết bội (C=C):\n- Poly(vinyl chloride) điều chế từ vinyl chloride (CH2=CHCl) -> trùng hợp.\n- Poly(methyl methacrylate) điều chế từ methyl methacrylate (CH2=C(CH3)COOCH3) -> trùng hợp.\n- Polyethylene điều chế từ ethylene (CH2=CH2) -> trùng hợp.\n- Polyacrylonitrile điều chế từ acrylonitrile (CH2=CH-CN) -> trùng hợp.\nCả 4 polymer đều điều chế bằng phản ứng trùng hợp. Đáp án: 4'
+      },
+      {
+        id: 32,
+        part: 'part3',
+        type: 'short',
+        text: 'Câu 32. Cho các hydrocarbon sau: propane, buta-1,3-diene, ethane, ethene, styrene, propene. Có bao nhiêu chất có thể trùng hợp tạo polymer?',
+        answer: '4',
+        explanation: 'Hướng dẫn giải:\nĐiều kiện trùng hợp: hydrocarbon có liên kết bội (C=C).\n- Các chất thỏa mãn (4 chất): buta-1,3-diene, ethene, styrene, propene.\n- Loại: propane, ethane (là alkane, chỉ có liên kết đơn).\nĐáp án: 4'
+      },
+      {
+        id: 33,
+        part: 'part3',
+        type: 'short',
+        text: 'Câu 33. Trong 7 loại tơ sau: sợi bông, tơ cellulose acetate, tơ capron (nylon-6), tơ visco, tơ tằm, tơ olon, tơ nylon-6,6. Số tơ thuộc loại tơ tổng hợp là bao nhiêu?',
+        answer: '3',
+        explanation: 'Hướng dẫn giải:\nPhân loại 7 loại tơ:\n- Tơ tổng hợp (3 loại): tơ capron (nylon-6), tơ olon, tơ nylon-6,6.\n- Tơ bán tổng hợp (2 loại): tơ cellulose acetate, tơ visco.\n- Tơ thiên nhiên (2 loại): sợi bông, tơ tằm.\nĐáp án: 3'
+      },
+      {
+        id: 34,
+        part: 'part3',
+        type: 'short',
+        text: 'Câu 34. Cho các loại polymer sau: polyethylene; polyacrylonitrile; polychloroprene; poly(vinyl chloride); poly(urea-formaldehyde); polypropylene; poly(phenol formaldehyde); poly(butadiene-styrene). Có bao nhiêu polymer dùng để làm chất dẻo?',
+        answer: '4',
+        explanation: 'Hướng dẫn giải:\nCác polymer dùng làm chất dẻo tiêu biểu: polyethylene (PE), poly(vinyl chloride) (PVC), polypropylene (PP), poly(phenol formaldehyde) (PPF) / poly(urea-formaldehyde).\n- Loại: polyacrylonitrile (dùng làm tơ); polychloroprene, poly(butadiene-styrene) (dùng làm cao su).\nĐáp án: 4'
+      },
+      {
+        id: 35,
+        part: 'part3',
+        type: 'short',
+        text: 'Câu 35. Poly(hexamethylene adipamide), còn gọi là nylon-6,6, là một polymer được điều chế từ phản ứng trùng ngưng của adipic acid với hexamethylenediamine. Tơ nylon-6,6 có tính dai, mềm, ít thấm nước nên được dùng để dệt vải may mặc, vải lót lốp xe, bện dây cáp, dây dù, đan lưới... Tính khối lượng của một mắt xích nylon-6,6 (theo đơn vị amu)?',
+        answer: '226',
+        explanation: 'Hướng dẫn giải:\nPTHH trùng ngưng tạo nylon-6,6:\nn HOOC-[CH2]4-COOH + n H2N-[CH2]6-NH2 -> (-NH-[CH2]6-NH-CO-[CH2]4-CO-)n + 2n H2O\nM(adipic acid) = 146; M(hexamethylenediamine) = 116.\nKhối lượng 1 mắt xích = 146 + 116 - 2 × 18 = 226 amu.\nĐáp án: 226'
+      },
+      {
+        id: 36,
+        part: 'part3',
+        type: 'short',
+        text: 'Câu 36. PBS - Poly(butylene succinate), có tên thương mại Bionolle, là một polymer phân huỷ sinh học có tính dẻo và bền nhiệt tương tự polyethylene (PE). Nhờ cấu trúc mạch chính chứa các nhóm ester dễ bị thủy phân, PBS có khả năng phân rã trong môi trường tự nhiên. Với đặc tính này, PBS được ứng dụng rộng rãi trong sản xuất bao bì và túi nylon thân thiện với môi trường, trở thành giải pháp tiềm năng thay thế các loại nhựa truyền thống khó phân huỷ. PBS được tổng hợp bằng phản ứng trùng ngưng giữa hai monomer sau: succinic acid và butane-1,4-diol. Tính khối lượng của một mắt xích polymer PBS theo đơn vị amu.',
+        answer: '172',
+        explanation: 'Hướng dẫn giải:\nPTHH trùng ngưng tạo PBS:\nn HOOC-[CH2]2-COOH + n HO-[CH2]4-OH -> (-O-[CH2]4-O-CO-[CH2]2-CO-)n + 2n H2O\nM(succinic acid, C4H6O4) = 118; M(butane-1,4-diol, C4H10O2) = 90.\nKhối lượng 1 mắt xích = 118 + 90 - 2 × 18 = 172 amu.\nĐáp án: 172'
+      }
+    ];
+
+    /* ==========================================================================
+       4. DỮ LIỆU NGUYÊN VĂN PHẦN 2: TỔNG HỢP CÁC POLYMER VÀ PHẢN ỨNG ĐIỀU CHẾ
+       ========================================================================== */
+    const STUDY_DATA = {
+      trunghop: {
+        title: 'I. Polymer điều chế bằng phản ứng TRÙNG HỢP',
+        desc: 'Đặc điểm: Cộng hợp nhiều monomer có liên kết bội (C=C) hoặc vòng kém bền, không giải phóng phân tử nhỏ.',
+        items: [
+          { num: 1, name: '1. Polyethylene (PE) (Chất dẻo)', eq: 'PTHH: n CH2=CH2 --[t°, p, xt]--> (-CH2-CH2-)n' },
+          { num: 2, name: '2. Polypropylene (PP) (Chất dẻo)', eq: 'PTHH: n CH2=CH-CH3 --[t°, p, xt]--> (-CH2-CH(CH3)-)n' },
+          { num: 3, name: '3. Poly(vinyl chloride) (PVC) (Chất dẻo)', eq: 'PTHH: n CH2=CHCl --[t°, p, xt]--> (-CH2-CHCl-)n' },
+          { num: 4, name: '4. Polystyrene (PS) (Chất dẻo)', eq: 'PTHH: n C6H5-CH=CH2 --[t°, p, xt]--> (-CH(C6H5)-CH2-)n' },
+          { num: 5, name: '5. Poly(methyl methacrylate) (Thủy tinh hữu cơ) (Chất dẻo)', eq: 'PTHH: n CH2=C(CH3)COOCH3 --[t°, p, xt]--> (-CH2-C(CH3)(COOCH3)-)n' },
+          { num: 6, name: '6. Polytetrafluoroethylene (Teflon) (Chất dẻo chịu nhiệt, chống dính)', eq: 'PTHH: n CF2=CF2 --[t°, p, xt]--> (-CF2-CF2-)n' },
+          { num: 7, name: '7. Polyacrylonitrile (Tơ nitron / Tơ olon) (Tơ tổng hợp)', eq: 'PTHH: n CH2=CH-CN --[t°, p, xt]--> (-CH2-CH(CN)-)n' },
+          { num: 8, name: '8. Polybuta-1,3-diene (Cao su buna) (Cao su tổng hợp)', eq: 'PTHH: n CH2=CH-CH=CH2 --[t°, p, Na]--> (-CH2-CH=CH-CH2-)n' },
+          { num: 9, name: '9. Polyisoprene (Cao su isopren) (Cao su tổng hợp)', eq: 'PTHH: n CH2=C(CH3)-CH=CH2 --[t°, p, xt]--> (-CH2-C(CH3)=CH-CH2-)n' },
+          { num: 10, name: '10. Polychloroprene (Cao su clopren) (Cao su tổng hợp)', eq: 'PTHH: n CH2=CCl-CH=CH2 --[t°, p, xt]--> (-CH2-CCl=CH-CH2-)n' },
+          { num: 11, name: '11. Cao su buna-S (Đồng trùng hợp)', eq: 'PTHH: n CH2=CH-CH=CH2 + n C6H5-CH=CH2 --[t°, p, Na]--> (-CH2-CH=CH-CH2-CH(C6H5)-CH2-)n' },
+          { num: 12, name: '12. Cao su buna-N (Đồng trùng hợp)', eq: 'PTHH: n CH2=CH-CH=CH2 + n CH2=CH-CN --[t°, p, Na]--> (-CH2-CH=CH-CH2-CH2-CH(CN)-)n' },
+          { num: 13, name: '13. Tơ capron (Nylon-6) (Trùng hợp mở vòng caprolactam)', eq: 'PTHH: n HN-[CH2]5-CO (vòng) --[t°]--> (-NH-[CH2]5-CO-)n' }
+        ]
+      },
+      trungngung: {
+        title: 'II. Polymer điều chế bằng phản ứng TRÙNG NGƯNG',
+        desc: 'Đặc điểm: Kết hợp các monomer có ít nhất 2 nhóm chức có khả năng phản ứng và giải phóng phân tử nhỏ (thường là H2O).',
+        items: [
+          { num: 1, name: '1. Nylon-6,6 (Poly(hexamethylene adipamide)) (Tơ tổng hợp)', eq: 'PTHH: n HOOC-[CH2]4-COOH + n H2N-[CH2]6-NH2 --[t°]--> (-NH-[CH2]6-NH-CO-[CH2]4-CO-)n + 2n H2O' },
+          { num: 2, name: '2. Tơ capron (Nylon-6) (Trùng ngưng epsilon-aminocaproic acid)', eq: 'PTHH: n H2N-[CH2]5-COOH --[t°]--> (-NH-[CH2]5-CO-)n + n H2O' },
+          { num: 3, name: '3. Tơ enang (Nylon-7) (Trùng ngưng omega-aminoenanthic acid)', eq: 'PTHH: n H2N-[CH2]6-COOH --[t°]--> (-NH-[CH2]6-CO-)n + n H2O' },
+          { num: 4, name: '4. Tơ lapsan (Poly(ethylene terephthalate) - PET) (Tơ tổng hợp / Chất dẻo)', eq: 'PTHH: n HOOC-C6H4-COOH + n HO-CH2-CH2-OH --[t°, xt]--> (-CO-C6H4-COO-CH2-CH2-O-)n + 2n H2O' },
+          { num: 5, name: '5. Poly(phenol formaldehyde) (PPF - Nhựa novolac) (Chất dẻo)', eq: 'PTHH: n C6H5OH + n HCHO --[t°, H+]--> (-C6H3(OH)-CH2-)n + n H2O' },
+          { num: 6, name: '6. Poly(urea-formaldehyde) (Chất dẻo / Keo dán)', eq: 'PTHH: n H2N-CO-NH2 + n HCHO --[t°, xt]--> (-NH-CO-NH-CH2-)n + n H2O' }
+        ]
+      }
+    };
+
+    /* ==========================================================================
+       5. APPLICATION STATE & DOM REFERENCES
+       ========================================================================== */
+    const state = {
+      currentView: 'home',
+      mode: 'all',
+      shuffle: false,
+      activeQuestions: [],
+      currentIndex: 0,
+      responses: {}, // { [questionId]: { status: 'correct'|'wrong'|'partial', userVal, points } }
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      isReviewMode: false,
+      studyFilter: 'all',
+      studySearch: ''
+    };
+
+    const dom = {
+      homeView: document.getElementById('homeView'),
+      quizView: document.getElementById('quizView'),
+      summaryView: document.getElementById('summaryView'),
+      studyView: document.getElementById('studyView'),
+
+      brandHomeBtn: document.getElementById('brandHomeBtn'),
+      soundToggleBtn: document.getElementById('soundToggleBtn'),
+      soundIcon: document.getElementById('soundIcon'),
+      soundLabel: document.getElementById('soundLabel'),
+      navToggleBtn: document.getElementById('navToggleBtn'),
+      homeReturnBtn: document.getElementById('homeReturnBtn'),
+
+      shuffleToggle: document.getElementById('shuffleToggle'),
+      homeSoundToggle: document.getElementById('homeSoundToggle'),
+
+      hudProgressText: document.getElementById('hudProgressText'),
+      hudScore: document.getElementById('hudScore'),
+      hudStreak: document.getElementById('hudStreak'),
+      progressFill: document.getElementById('progressFill'),
+      finishQuizEarlyBtn: document.getElementById('finishQuizEarlyBtn'),
+
+      navPanel: document.getElementById('navPanel'),
+      navGrid: document.getElementById('navGrid'),
+
+      qTypeBadge: document.getElementById('qTypeBadge'),
+      qNumberBadge: document.getElementById('qNumberBadge'),
+      qText: document.getElementById('qText'),
+      qChemBox: document.getElementById('qChemBox'),
+      qSvgContainer: document.getElementById('qSvgContainer'),
+      answerArea: document.getElementById('answerArea'),
+      explanationBox: document.getElementById('explanationBox'),
+      expTitle: document.getElementById('expTitle'),
+      expBody: document.getElementById('expBody'),
+
+      prevBtn: document.getElementById('prevBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+
+      sumBadgeEmoji: document.getElementById('sumBadgeEmoji'),
+      sumBadgeTitle: document.getElementById('sumBadgeTitle'),
+      sumSubtitle: document.getElementById('sumSubtitle'),
+      sumScore: document.getElementById('sumScore'),
+      sumCorrect: document.getElementById('sumCorrect'),
+      sumAccuracy: document.getElementById('sumAccuracy'),
+      sumBestStreak: document.getElementById('sumBestStreak'),
+      reviewWrongBtn: document.getElementById('reviewWrongBtn'),
+      retryQuizBtn: document.getElementById('retryQuizBtn'),
+      summaryHomeBtn: document.getElementById('summaryHomeBtn'),
+
+      studySearchInput: document.getElementById('studySearchInput'),
+      studyContent: document.getElementById('studyContent'),
+
+      customModal: document.getElementById('customModal'),
+      modalTitle: document.getElementById('modalTitle'),
+      modalMessage: document.getElementById('modalMessage'),
+      modalCancelBtn: document.getElementById('modalCancelBtn'),
+      modalConfirmBtn: document.getElementById('modalConfirmBtn')
+    };
+
+    let modalConfirmCallback = null;
+
+    /* ==========================================================================
+       6. HELPER FUNCTIONS (MODAL, VIEW SWITCHING, SHUFFLE)
+       ========================================================================== */
+    function showModal(title, message, onConfirm) {
+      dom.modalTitle.textContent = title;
+      dom.modalMessage.textContent = message;
+      modalConfirmCallback = onConfirm;
+      dom.customModal.classList.remove('hidden');
+    }
+
+    function hideModal() {
+      dom.customModal.classList.add('hidden');
+      modalConfirmCallback = null;
+    }
+
+    function switchView(viewName) {
+      state.currentView = viewName;
+      dom.homeView.classList.toggle('hidden', viewName !== 'home');
+      dom.quizView.classList.toggle('hidden', viewName !== 'quiz');
+      dom.summaryView.classList.toggle('hidden', viewName !== 'summary');
+      dom.studyView.classList.toggle('hidden', viewName !== 'study');
+
+      dom.navToggleBtn.classList.toggle('hidden', viewName !== 'quiz');
+      dom.homeReturnBtn.classList.toggle('hidden', viewName === 'home');
+
+      if (viewName !== 'quiz') {
+        dom.navPanel.classList.add('hidden');
+        dom.navToggleBtn.classList.remove('active');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function syncSoundUI(isOn) {
+      SoundFX.setEnabled(isOn);
+      dom.homeSoundToggle.checked = isOn;
+      dom.soundIcon.textContent = isOn ? '🔊' : '🔇';
+      dom.soundLabel.textContent = isOn ? 'Âm thanh: Bật' : 'Âm thanh: Tắt';
+    }
+
+    /* ==========================================================================
+       7. QUIZ LIFECYCLE & RENDERING
+       ========================================================================== */
+    function startQuiz(mode, customQuestions = null, isReview = false) {
+      try {
+        state.mode = mode;
+        state.isReviewMode = isReview;
+        state.shuffle = dom.shuffleToggle.checked;
+
+        let list = [];
+        if (customQuestions) {
+          list = [...customQuestions];
+        } else if (mode === 'all') {
+          list = [...QUESTIONS];
+        } else {
+          list = QUESTIONS.filter(q => q.part === mode);
+        }
+
+        if (state.shuffle && !isReview) {
+          list = shuffleArray(list);
+        }
+
+        state.activeQuestions = list;
+        state.currentIndex = 0;
+
+        if (!isReview) {
+          state.responses = {};
+          state.score = 0;
+          state.streak = 0;
+          state.bestStreak = 0;
+        }
+
+        switchView('quiz');
+        renderNavigator();
+        renderCurrentQuestion();
+      } catch (err) {
+        console.error('Lỗi khởi tạo bài quiz:', err);
+      }
+    }
+
+    function updateHUD() {
+      const total = state.activeQuestions.length;
+      const answeredCount = state.activeQuestions.filter(q => Boolean(state.responses[q.id])).length;
+      dom.hudProgressText.textContent = `Câu ${state.currentIndex + 1} / ${total}`;
+      dom.hudScore.textContent = `⭐ ${state.score.toLocaleString('vi-VN')} điểm`;
+      dom.hudStreak.textContent = `🔥 Chuỗi: ${state.streak}`;
+
+      if (state.streak >= 3) {
+        dom.hudStreak.classList.add('hot');
+      } else {
+        dom.hudStreak.classList.remove('hot');
+      }
+
+      const pct = total > 0 ? Math.round((answeredCount / total) * 100) : 0;
+      dom.progressFill.style.width = `${pct}%`;
+    }
+
+    function renderNavigator() {
+      dom.navGrid.innerHTML = '';
+      state.activeQuestions.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'nav-item';
+        btn.textContent = q.id;
+        btn.title = `Nhảy tới Câu ${q.id}`;
+
+        if (idx === state.currentIndex) btn.classList.add('current');
+        const res = state.responses[q.id];
+        if (res) {
+          if (res.status === 'correct') btn.classList.add('is-correct');
+          else if (res.status === 'partial') btn.classList.add('is-partial');
+          else btn.classList.add('is-wrong');
+        }
+
+        btn.addEventListener('click', () => {
+          SoundFX.click();
+          state.currentIndex = idx;
+          renderCurrentQuestion();
+          renderNavigator();
+        });
+        dom.navGrid.appendChild(btn);
+      });
+    }
+
+    function getPartLabel(q) {
+      if (q.part === 'part1') return 'Phần I • Trắc nghiệm nhiều lựa chọn';
+      if (q.part === 'part2') return 'Phần II • Trắc nghiệm Đúng / Sai';
+      return 'Phần III • Trả lời ngắn';
+    }
+
+    function renderCurrentQuestion() {
+      const q = state.activeQuestions[state.currentIndex];
+      if (!q) return;
+
+      updateHUD();
+      renderNavigator();
+
+      dom.qTypeBadge.textContent = state.isReviewMode
+        ? `Xem lại câu sai • ${getPartLabel(q)}`
+        : getPartLabel(q);
+      dom.qNumberBadge.textContent = `Câu ${q.id} / 36`;
+      dom.qText.textContent = q.text;
+
+      // Chemical equation block
+      if (q.chem) {
+        dom.qChemBox.textContent = q.chem;
+        dom.qChemBox.classList.remove('hidden');
+      } else {
+        dom.qChemBox.classList.add('hidden');
+      }
+
+      // SVG illustration block
+      if (q.svg) {
+        dom.qSvgContainer.innerHTML = getSvgByType(q.svg);
+        dom.qSvgContainer.classList.remove('hidden');
+      } else {
+        dom.qSvgContainer.innerHTML = '';
+        dom.qSvgContainer.classList.add('hidden');
+      }
+
+      // Clear previous answer & explanation
+      dom.answerArea.innerHTML = '';
+      dom.explanationBox.classList.add('hidden');
+      dom.explanationBox.classList.remove('is-correct', 'is-wrong');
+
+      if (q.type === 'mcq') renderMCQ(q);
+      else if (q.type === 'tf') renderTrueFalse(q);
+      else if (q.type === 'short') renderShortAnswer(q);
+
+      // Update Prev / Next buttons
+      dom.prevBtn.disabled = state.currentIndex === 0;
+      const isLast = state.currentIndex === state.activeQuestions.length - 1;
+      dom.nextBtn.textContent = isLast
+        ? (state.isReviewMode ? '📊 Quay lại Tổng kết' : '🏁 Hoàn thành & Tổng kết')
+        : 'Câu tiếp theo →';
+    }
+
+    /* ---------- PART I: MCQ ---------- */
+    function renderMCQ(q) {
+      const grid = document.createElement('div');
+      grid.className = 'options-grid';
+      const existing = state.responses[q.id];
+
+      ['A', 'B', 'C', 'D'].forEach(letter => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-tile';
+        btn.dataset.opt = letter;
+        btn.innerHTML = `
+          <span class="option-letter">${letter}</span>
+          <span>${q.options[letter]}</span>
+        `;
+
+        if (existing) {
+          btn.disabled = true;
+          if (letter === q.answer) {
+            btn.classList.add('correct-ans');
+          } else if (letter === existing.userVal && existing.userVal !== q.answer) {
+            btn.classList.add('wrong-ans');
+          } else {
+            btn.classList.add('dimmed');
+          }
+        } else {
+          btn.addEventListener('click', () => handleMCQAnswer(q, letter));
+        }
+        grid.appendChild(btn);
+      });
+
+      dom.answerArea.appendChild(grid);
+
+      if (existing) {
+        showExplanation(existing.status === 'correct', q.explanation, `Đáp án đúng: ${q.answer}`);
+      }
+    }
+
+    function handleMCQAnswer(q, chosenLetter) {
+      if (state.responses[q.id]) return;
+      const isCorrect = chosenLetter === q.answer;
+      let pts = 0;
+
+      if (isCorrect) {
+        state.streak += 1;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+        pts = 1000 + Math.min(state.streak - 1, 5) * 100;
+        state.score += pts;
+        if (state.streak >= 3) SoundFX.streak();
+        else SoundFX.correct();
+      } else {
+        state.streak = 0;
+        SoundFX.wrong();
+      }
+
+      state.responses[q.id] = {
+        status: isCorrect ? 'correct' : 'wrong',
+        userVal: chosenLetter,
+        points: pts
+      };
+
+      renderCurrentQuestion();
+    }
+
+    /* ---------- PART II: TRUE / FALSE ---------- */
+    function renderTrueFalse(q) {
+      const listEl = document.createElement('div');
+      listEl.className = 'tf-list';
+      const existing = state.responses[q.id];
+      const tempSelections = existing ? { ...existing.userVal } : {};
+
+      q.statements.forEach(st => {
+        const item = document.createElement('div');
+        item.className = 'tf-item';
+
+        if (existing) {
+          const userChoice = existing.userVal[st.key];
+          if (userChoice === st.answer) item.classList.add('tf-correct');
+          else item.classList.add('tf-wrong');
+        }
+
+        const topRow = document.createElement('div');
+        topRow.className = 'tf-top';
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'tf-text';
+        textDiv.textContent = st.text;
+
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'tf-btns';
+
+        const btnTrue = document.createElement('button');
+        btnTrue.type = 'button';
+        btnTrue.className = 'tf-btn';
+        btnTrue.textContent = 'ĐÚNG';
+
+        const btnFalse = document.createElement('button');
+        btnFalse.type = 'button';
+        btnFalse.className = 'tf-btn';
+        btnFalse.textContent = 'SAI';
+
+        if (existing) {
+          btnTrue.disabled = true;
+          btnFalse.disabled = true;
+          const userChoice = existing.userVal[st.key];
+          if (userChoice === true) {
+            btnTrue.classList.add(st.answer === true ? 'graded-correct' : 'graded-wrong');
+          } else if (userChoice === false) {
+            btnFalse.classList.add(st.answer === false ? 'graded-correct' : 'graded-wrong');
+          }
+          if (st.answer === true) btnTrue.classList.add('graded-correct');
+          if (st.answer === false) btnFalse.classList.add('graded-correct');
+        } else {
+          btnTrue.addEventListener('click', () => {
+            SoundFX.click();
+            tempSelections[st.key] = true;
+            btnTrue.classList.add('selected-true');
+            btnFalse.classList.remove('selected-false');
+            checkReadyBtn();
+          });
+          btnFalse.addEventListener('click', () => {
+            SoundFX.click();
+            tempSelections[st.key] = false;
+            btnFalse.classList.add('selected-false');
+            btnTrue.classList.remove('selected-true');
+            checkReadyBtn();
+          });
+        }
+
+        btnGroup.appendChild(btnTrue);
+        btnGroup.appendChild(btnFalse);
+        topRow.appendChild(textDiv);
+        topRow.appendChild(btnGroup);
+        item.appendChild(topRow);
+
+        if (existing) {
+          const fb = document.createElement('div');
+          fb.className = 'tf-feedback';
+          const userChoice = existing.userVal[st.key];
+          const mark = userChoice === st.answer ? '✅' : '❌';
+          fb.textContent = `${mark} Đáp án: ${st.explanation}`;
+          item.appendChild(fb);
+        }
+
+        listEl.appendChild(item);
+      });
+
+      dom.answerArea.appendChild(listEl);
+
+      let submitBtn = null;
+      function checkReadyBtn() {
+        if (!submitBtn) return;
+        const count = Object.keys(tempSelections).length;
+        submitBtn.disabled = count < q.statements.length;
+        submitBtn.textContent = count < q.statements.length
+          ? `Chọn đủ 4 ý để kiểm tra (${count}/4)`
+          : '✅ Kiểm tra đáp án';
+      }
+
+      if (!existing) {
+        const wrap = document.createElement('div');
+        wrap.style.marginTop = '16px';
+        wrap.style.textAlign = 'right';
+        submitBtn = document.createElement('button');
+        submitBtn.type = 'button';
+        submitBtn.className = 'btn-primary';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Chọn đủ 4 ý để kiểm tra (0/4)';
+        submitBtn.addEventListener('click', () => handleTFAnswer(q, tempSelections));
+        wrap.appendChild(submitBtn);
+        dom.answerArea.appendChild(wrap);
+      } else {
+        const correctItems = q.statements.filter(s => existing.userVal[s.key] === s.answer).length;
+        showExplanation(
+          correctItems === 4,
+          `Bạn trả lời đúng ${correctItems}/4 ý (+${existing.points} điểm). Xem chi tiết từng ý ở phía trên.`,
+          correctItems === 4 ? 'Xuất sắc! Đúng cả 4/4 ý' : `Đúng ${correctItems}/4 ý`
+        );
+      }
+    }
+
+    function handleTFAnswer(q, selections) {
+      if (state.responses[q.id]) return;
+      let correctCount = 0;
+      q.statements.forEach(st => {
+        if (selections[st.key] === st.answer) correctCount++;
+      });
+
+      const pts = correctCount * 250;
+      state.score += pts;
+
+      let status = 'wrong';
+      if (correctCount === 4) {
+        status = 'correct';
+        state.streak += 1;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+        if (state.streak >= 3) SoundFX.streak();
+        else SoundFX.correct();
+      } else if (correctCount > 0) {
+        status = 'partial';
+        state.streak = 0;
+        SoundFX.click();
+      } else {
+        state.streak = 0;
+        SoundFX.wrong();
+      }
+
+      state.responses[q.id] = {
+        status,
+        userVal: { ...selections },
+        points: pts
+      };
+
+      renderCurrentQuestion();
+    }
+
+    /* ---------- PART III: SHORT ANSWER ---------- */
+    function renderShortAnswer(q) {
+      const existing = state.responses[q.id];
+      const box = document.createElement('div');
+      box.className = 'short-answer-box';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.inputMode = 'decimal';
+      input.className = 'short-input';
+      input.placeholder = 'Nhập đáp án số (VD: 4, 14, 226)...';
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-primary';
+      btn.textContent = '✅ Kiểm tra';
+
+      if (existing) {
+        input.value = existing.userVal;
+        input.disabled = true;
+        btn.disabled = true;
+        input.classList.add(existing.status === 'correct' ? 'correct-input' : 'wrong-input');
+      } else {
+        const submit = () => {
+          const val = input.value.trim();
+          if (!val) {
+            input.focus();
+            return;
+          }
+          handleShortAnswer(q, val);
+        };
+        btn.addEventListener('click', submit);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') submit();
+        });
+      }
+
+      box.appendChild(input);
+      box.appendChild(btn);
+      dom.answerArea.appendChild(box);
+
+      if (existing) {
+        showExplanation(
+          existing.status === 'correct',
+          q.explanation,
+          existing.status === 'correct'
+            ? `Chính xác! Đáp án là ${q.answer}`
+            : `Chưa chính xác! Đáp án đúng là ${q.answer}`
+        );
+      } else {
+        setTimeout(() => input.focus(), 50);
+      }
+    }
+
+    function handleShortAnswer(q, rawValue) {
+      if (state.responses[q.id]) return;
+      const normalizedUser = rawValue.replace(',', '.').trim();
+      const normalizedAns = String(q.answer).replace(',', '.').trim();
+      const isCorrect = normalizedUser === normalizedAns || Number(normalizedUser) === Number(normalizedAns);
+
+      let pts = 0;
+      if (isCorrect) {
+        state.streak += 1;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+        pts = 1000 + Math.min(state.streak - 1, 5) * 100;
+        state.score += pts;
+        if (state.streak >= 3) SoundFX.streak();
+        else SoundFX.correct();
+      } else {
+        state.streak = 0;
+        SoundFX.wrong();
+      }
+
+      state.responses[q.id] = {
+        status: isCorrect ? 'correct' : 'wrong',
+        userVal: rawValue,
+        points: pts
+      };
+
+      renderCurrentQuestion();
+    }
+
+    function showExplanation(isCorrect, bodyText, titleText) {
+      dom.explanationBox.classList.remove('hidden', 'is-correct', 'is-wrong');
+      dom.explanationBox.classList.add(isCorrect ? 'is-correct' : 'is-wrong');
+      dom.expTitle.textContent = (isCorrect ? '🎉 ' : '💡 ') + titleText;
+      dom.expBody.textContent = bodyText;
+    }
+
+    /* ==========================================================================
+       8. SUMMARY SCREEN
+       ========================================================================== */
+    function showSummary() {
+      SoundFX.finish();
+      const total = state.activeQuestions.length;
+      const correctCount = state.activeQuestions.filter(q => state.responses[q.id]?.status === 'correct').length;
+      const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+      let emoji = '📚';
+      let badge = 'Cần Ôn Luyện Thêm';
+      if (accuracy >= 90) { emoji = '🏆'; badge = 'Bậc Thầy Polymer'; }
+      else if (accuracy >= 75) { emoji = '🥇'; badge = 'Chuyên Gia Hóa Học'; }
+      else if (accuracy >= 50) { emoji = '⚡'; badge = 'Học Viên Nỗ Lực'; }
+
+      dom.sumBadgeEmoji.textContent = emoji;
+      dom.sumBadgeTitle.textContent = badge;
+      dom.sumSubtitle.textContent = `Bạn đã hoàn thành ${Object.keys(state.responses).length} / ${total} câu hỏi trong chế độ hiện tại.`;
+      dom.sumScore.textContent = state.score.toLocaleString('vi-VN');
+      dom.sumCorrect.textContent = `${correctCount} / ${total}`;
+      dom.sumAccuracy.textContent = `${accuracy}%`;
+      dom.sumBestStreak.textContent = state.bestStreak;
+
+      const wrongQuestions = state.activeQuestions.filter(q => {
+        const r = state.responses[q.id];
+        return !r || r.status !== 'correct';
+      });
+
+      if (wrongQuestions.length > 0) {
+        dom.reviewWrongBtn.classList.remove('hidden');
+        dom.reviewWrongBtn.textContent = `🔍 Xem lại câu sai / chưa đúng (${wrongQuestions.length})`;
+      } else {
+        dom.reviewWrongBtn.classList.add('hidden');
+      }
+
+      switchView('summary');
+    }
+
+    /* ==========================================================================
+       9. STUDY GUIDE RENDERER (PHẦN 2: TỔNG HỢP POLYMER)
+       ========================================================================== */
+    function renderStudyGuide() {
+      const q = state.studySearch.trim().toLowerCase();
+      const filter = state.studyFilter;
+      let html = '';
+
+      const renderGroup = (groupObj, isCondensation) => {
+        const filteredItems = groupObj.items.filter(item => {
+          if (!q) return true;
+          return item.name.toLowerCase().includes(q) || item.eq.toLowerCase().includes(q);
+        });
+
+        if (filteredItems.length === 0) return '';
+
+        return `
+          <div class="study-section-banner ${isCondensation ? 'condensation' : ''}">
+            <h3>${groupObj.title}</h3>
+            <p>${groupObj.desc}</p>
+          </div>
+          <div class="polymer-grid">
+            ${filteredItems.map(item => `
+              <div class="polymer-card">
+                <div class="polymer-title">${item.name}</div>
+                <div class="polymer-eq">${item.eq}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      };
+
+      if (filter === 'all' || filter === 'trunghop') {
+        html += renderGroup(STUDY_DATA.trunghop, false);
+      }
+      if (filter === 'all' || filter === 'trungngung') {
+        html += renderGroup(STUDY_DATA.trungngung, true);
+      }
+
+      if (!html) {
+        html = `
+          <div class="question-card" style="text-align:center; padding:32px;">
+            <p style="color: var(--text-muted); font-size: 1rem;">Không tìm thấy polymer hoặc phương trình nào phù hợp với từ khóa "${state.studySearch}".</p>
+          </div>
+        `;
+      }
+
+      dom.studyContent.innerHTML = html;
+    }
+
+    /* ==========================================================================
+       10. EVENT LISTENERS
+       ========================================================================== */
+    function initEvents() {
+      // Mode cards on Home Screen
+      document.querySelectorAll('.mode-card').forEach(card => {
+        card.addEventListener('click', () => {
+          SoundFX.click();
+          const mode = card.dataset.mode;
+          if (mode === 'study') {
+            switchView('study');
+            renderStudyGuide();
+          } else {
+            startQuiz(mode);
+          }
+        });
+      });
+
+      // Sound toggles
+      dom.soundToggleBtn.addEventListener('click', () => {
+        syncSoundUI(!SoundFX.isEnabled());
+        SoundFX.click();
+      });
+
+      dom.homeSoundToggle.addEventListener('change', (e) => {
+        syncSoundUI(e.target.checked);
+        SoundFX.click();
+      });
+
+      // Home return buttons
+      const confirmGoHome = () => {
+        SoundFX.click();
+        if (state.currentView === 'quiz' && !state.isReviewMode && Object.keys(state.responses).length > 0) {
+          showModal(
+            'Quay về trang chủ?',
+            'Tiến độ bài làm hiện tại sẽ không được lưu nếu bạn thoát ngay lúc này.',
+            () => switchView('home')
+          );
+        } else {
+          switchView('home');
+        }
+      };
+
+      dom.brandHomeBtn.addEventListener('click', confirmGoHome);
+      dom.homeReturnBtn.addEventListener('click', confirmGoHome);
+      dom.summaryHomeBtn.addEventListener('click', () => {
+        SoundFX.click();
+        switchView('home');
+      });
+
+      // Question Navigator toggle
+      dom.navToggleBtn.addEventListener('click', () => {
+        SoundFX.click();
+        dom.navPanel.classList.toggle('hidden');
+        dom.navToggleBtn.classList.toggle('active');
+      });
+
+      // Prev / Next buttons
+      dom.prevBtn.addEventListener('click', () => {
+        if (state.currentIndex > 0) {
+          SoundFX.click();
+          state.currentIndex--;
+          renderCurrentQuestion();
+        }
+      });
+
+      dom.nextBtn.addEventListener('click', () => {
+        SoundFX.click();
+        if (state.currentIndex < state.activeQuestions.length - 1) {
+          state.currentIndex++;
+          renderCurrentQuestion();
+        } else {
+          showSummary();
+        }
+      });
+
+      // Finish early
+      dom.finishQuizEarlyBtn.addEventListener('click', () => {
+        SoundFX.click();
+        const unanswered = state.activeQuestions.length - Object.keys(state.responses).length;
+        if (unanswered > 0 && !state.isReviewMode) {
+          showModal(
+            'Nộp bài ngay?',
+            `Bạn còn ${unanswered} câu chưa trả lời. Bạn có chắc chắn muốn xem bảng tổng kết ngay bây giờ không?`,
+            () => showSummary()
+          );
+        } else {
+          showSummary();
+        }
+      });
+
+      // Summary actions
+      dom.reviewWrongBtn.addEventListener('click', () => {
+        SoundFX.click();
+        const wrongList = state.activeQuestions.filter(q => {
+          const r = state.responses[q.id];
+          return !r || r.status !== 'correct';
+        });
+        if (wrongList.length > 0) {
+          startQuiz(state.mode, wrongList, true);
+        }
+      });
+
+      dom.retryQuizBtn.addEventListener('click', () => {
+        SoundFX.click();
+        startQuiz(state.mode, null, false);
+      });
+
+      // Study Guide search & filter
+      dom.studySearchInput.addEventListener('input', (e) => {
+        state.studySearch = e.target.value;
+        renderStudyGuide();
+      });
+
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          SoundFX.click();
+          document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          state.studyFilter = tab.dataset.filter;
+          renderStudyGuide();
+        });
+      });
+
+      // Modal actions
+      dom.modalCancelBtn.addEventListener('click', () => {
+        SoundFX.click();
+        hideModal();
+      });
+      dom.modalConfirmBtn.addEventListener('click', () => {
+        SoundFX.click();
+        const cb = modalConfirmCallback;
+        hideModal();
+        if (cb) cb();
+      });
+      dom.customModal.addEventListener('click', (e) => {
+        if (e.target === dom.customModal) hideModal();
+      });
+    }
+
+    // Initialize app on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initEvents();
+      syncSoundUI(true);
+    });
+  </script>
+</body>
+</html>
